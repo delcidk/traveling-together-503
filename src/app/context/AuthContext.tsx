@@ -1,30 +1,32 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { createContext, useContext, ReactNode } from "react";
+import { User } from "firebase/auth";
+import { User as UserProfile } from "@/lib/types";
+import { useAuthLogic } from "../hooks/useAuthLogic";
 
-// contexto vacío
-const AuthContext = createContext({});
+interface AuthContextType {
+  user: User | null;
+  userProfile: UserProfile | null;
+  loading: boolean;
+  getToken: () => Promise<string | null>;
+  login: (email: string, pass: string) => Promise<void>;
+  register: (email: string, pass: string, nombre: string, telefono?: string) => Promise<void>;
+  logout: () => Promise<void>;
+  isAdmin: boolean;
+}
 
-// Provider
+const AuthContext = createContext<AuthContextType | null>(null);
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const authState = useAuthLogic();
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
-      {loading ? (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-           <p className="text-xl text-gray-600">Cargando Traveling Together 503...</p>
+    <AuthContext.Provider value={authState}>
+      {authState.loading ? (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+           <p className="text-gray-600">Cargando...</p>
         </div>
       ) : (
         children
@@ -33,7 +35,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
 };

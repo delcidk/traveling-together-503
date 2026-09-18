@@ -1,7 +1,10 @@
 import { AuthProvider } from "./context/AuthContext";
-import { ReservationProvider } from "./context/ReservationContext"; // 1. Nueva importación
+import { ReservationProvider } from "./context/ReservationContext";
+import { VehiclesProvider } from "./context/VehiclesContext";
+import { RoutesProvider } from "./context/RoutesContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,10 +33,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Toaster position="top-right" />
         <AuthProvider>
-          <ReservationProvider>
-            {children}
-          </ReservationProvider>
+          <VehiclesProvider>
+            <RoutesProvider>
+              <ReservationProvider>
+                {children}
+              </ReservationProvider>
+            </RoutesProvider>
+          </VehiclesProvider>
         </AuthProvider>
       </body>
     </html>
