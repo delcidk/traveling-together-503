@@ -5,7 +5,7 @@ const projectId = process.env.FIREBASE_PROJECT_ID?.trim()?.replace(/^"|"$/g, '')
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.trim()?.replace(/^"|"$/g, '');
 let privateKey = process.env.FIREBASE_PRIVATE_KEY?.trim()?.replace(/^"|"$/g, '');
 
-// Manejar tanto saltos de línea literales (\n) como reales
+// Manejar saltos de línea 
 if (privateKey) {
   privateKey = privateKey.replace(/\\n/g, '\n');
 }

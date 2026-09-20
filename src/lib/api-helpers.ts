@@ -43,10 +43,7 @@ export async function verifyAuthToken(request: Request) {
   }
 }
 
-/**
- * Verifies if the user corresponding to the given uid has the 'admin' role in Firestore.
- * Throws an error if they are not an admin.
- */
+// Verifica usuario con permisos de administrador en firebase
 export async function verifyAdmin(uid: string) {
   const userDoc = await adminDb.collection("users").doc(uid).get();
   
@@ -62,9 +59,7 @@ export async function verifyAdmin(uid: string) {
   return true;
 }
 
-/**
- * Helper to safely parse JSON bodies
- */
+// Helper para parsear JSON bodies
 export async function parseBody<T>(request: Request): Promise<T> {
   try {
     return (await request.json()) as T;

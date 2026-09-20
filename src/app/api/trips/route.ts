@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     await verifyAdmin(decodedToken.uid);
 
     const body = (await parseBody(request)) as any;
-    // Convert string date to Date object if needed
+    // Convertir fecha string a Date si es necesario
     if (typeof body.fechaSalida === 'string') {
       body.fechaSalida = new Date(body.fechaSalida);
     }

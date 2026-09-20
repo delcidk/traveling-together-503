@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Rutas que requieren autenticación
 const protectedPaths = ["/dashboard", "/admin", "/reservations", "/profile"];
-// Rutas que solo deben verse si NO estás logueado
+// Rutas que solo deben verse si NO está logueado
 const authPaths = ["/login", "/register"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Leemos la cookie "session_active" que seteamos en el AuthContext
+  // Leer cookie "session_active" seteada en AuthContext
   const sessionActive = request.cookies.get("session_active");
   
   // 1. Proteger rutas privadas

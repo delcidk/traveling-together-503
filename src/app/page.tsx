@@ -66,18 +66,17 @@ export default function Home() {
       </header>
 
       <main className="flex-1 bg-white">
-        {/* HERO SECTION MATCHING MOCKUP */}
         <div className="relative pt-16 pb-20 lg:pt-24 lg:pb-28">
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-12">
 
-            {/* Left Content */}
+            {/* Contenido Izquierdo */}
             <div className="lg:w-1/2 w-full text-center lg:text-left">
               {/* Badge */}
               <div className="inline-block border border-gray-300 rounded px-3 py-1 mb-8 text-xs font-semibold text-gray-500 tracking-widest uppercase">
                 El Salvador • Guatemala • Nicaragua
               </div>
 
-              {/* Headline */}
+              {/* Titulo */}
               <h1 className="text-6xl sm:text-7xl lg:text-[5.5rem] font-extrabold text-gray-900 tracking-tighter leading-[0.9] mb-1 uppercase">
                 TRAVELING <br /> TOGETHER
               </h1>
@@ -85,12 +84,12 @@ export default function Home() {
                 503
               </h2>
 
-              {/* Paragraph */}
+              {/* Descripción */}
               <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto lg:mx-0 mb-10 leading-relaxed font-medium">
                 Transporte privado para turistas y viajeros en Centroamérica. Cómodo, seguro y con atención personalizada en cada ruta.
               </p>
 
-              {/* Buttons */}
+              {/* Botones */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                 <Link href="#tours" className="inline-flex justify-center items-center px-6 py-3 border border-transparent text-sm font-bold rounded shadow-sm text-white bg-gray-900 hover:bg-gray-800 transition-colors">
                   Ver todos los servicios ↗
@@ -101,10 +100,10 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Divider */}
+              {/* Divisor */}
               <div className="w-full h-px bg-gray-200 mb-8 max-w-xl mx-auto lg:mx-0"></div>
 
-              {/* Stats */}
+              {/* Estadísticas */}
               <div className="flex justify-center lg:justify-start gap-12">
                 <div>
                   <p className="text-2xl font-extrabold text-gray-900">10+</p>
@@ -121,7 +120,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Content - Hero Image */}
+            {/* Contenido Derecho */}
             <div className="lg:w-1/2 w-full">
               <div className="rounded-lg overflow-hidden aspect-[4/3] relative shadow-2xl border border-gray-100">
                 <img 
@@ -135,14 +134,14 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ROUTES GRID SECTION */}
+        {/* SECCION DE LA CUADRICULA DE RUTAS */}
         <div id="tours" className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
           <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">
             Nuestros Destinos Destacados
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {loadingRoutes ? (
-              // Esqueletos de carga
+
               [1, 2, 3].map((item) => (
                 <div key={item} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                   <div className="h-48 bg-gray-200 w-full animate-pulse"></div>
@@ -154,7 +153,7 @@ export default function Home() {
                 </div>
               ))
             ) : routes.filter(r => r.activa).length > 0 ? (
-              // Rutas dinámicas
+
               routes.filter(r => r.activa).slice(0, 6).map((route: any) => (
                 <div key={route.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col">
                   {route.imagenUrl ? (

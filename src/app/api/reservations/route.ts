@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     try {
       isAdmin = await verifyAdmin(decodedToken.uid);
     } catch {
-      // not an admin
+      // No es admin
     }
 
     let query: FirebaseFirestore.Query = adminDb.collection("reservations");
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const batch = adminDb.batch();
     batch.set(newResRef, resData);
     
-    // Increment the occupied seats
+    // Incrementar los asientos ocupados
     batch.update(tripRef, {
       asientosOcupados: FieldValue.increment(parsedData.pasajeros),
       updatedAt: new Date()

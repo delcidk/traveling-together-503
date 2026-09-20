@@ -85,7 +85,6 @@ export function useAuthLogic() {
 
     const json = await res.json();
     if (!res.ok || !json.success) {
-      // Si la API falla, sería ideal hacer un rollback, pero por ahora lanzamos el error
       throw new Error(json.error || "Error al crear el perfil");
     }
 

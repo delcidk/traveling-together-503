@@ -23,7 +23,7 @@ export const UpdateUserSchema = z.object({
   rol: z.enum(["cliente", "admin"]).optional(),
 });
 
-// --- Vehicles ---
+// --- Vehiculos ---
 export const VehicleSchema = z.object({
   id: z.string(),
   nombre: z.string().min(1),
@@ -49,7 +49,7 @@ export const CreateVehicleSchema = z.object({
 
 export const UpdateVehicleSchema = CreateVehicleSchema.partial();
 
-// --- Routes ---
+// --- Rutas ---
 export const RouteSchema = z.object({
   id: z.string(),
   origen: z.string().min(1),
@@ -80,7 +80,7 @@ export const CreateRouteSchema = z.object({
 export const UpdateRouteSchema = CreateRouteSchema.partial();
 
 // ----------------------
-// VIAJES (TRIPS)
+// VIAJES
 // ----------------------
 export const TripSchema = z.object({
   rutaId: z.string().min(1, "La ruta es requerida"),
@@ -101,7 +101,7 @@ export type Trip = z.infer<typeof TripSchema> & {
 };
 
 // ----------------------
-// RESERVAS (RESERVATIONS)
+// RESERVAS
 // ----------------------
 export const ReservationSchema = z.object({
   viajeId: z.string().min(1, "El viaje es requerido"),
@@ -120,7 +120,6 @@ export type Reservation = z.infer<typeof ReservationSchema> & {
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  // Campos opcionales para join
   viajeFecha?: Date;
   viajeRuta?: string;
 };

@@ -46,12 +46,12 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
     );
   }
 
-  // Estimación de duración (60km/h)
+  // Estimación de duración
   const durationHours = Math.max(1, Math.ceil(route.distanciaKm / 60));
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Navbar (Similar a Home) */}
+      {/* Navbar */}
       <header className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -90,10 +90,10 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Contenido Principal */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex-1 w-full">
         <div className="flex flex-col lg:flex-row gap-10">
-          {/* Left Column - Main Image */}
+          {/* Columna Izquierda */}
           <div className="lg:w-1/2 w-full">
             <div className="bg-gray-200 rounded-lg overflow-hidden aspect-video relative flex items-center justify-center">
               {route.imagenUrl ? (
@@ -107,7 +107,7 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
 
-          {/* Right Column - Details */}
+          {/* Columna Derecha */}
           <div className="lg:w-1/2 w-full flex flex-col">
             <div className="flex items-center gap-3 mb-4">
               <span className="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 font-medium bg-white shadow-sm">Destino</span>
@@ -194,7 +194,7 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
           </div>
         </div>
 
-        {/* Gallery Section */}
+        {/* Sección de Galería */}
         <div className="mt-16 border-t border-gray-100 pt-16 mb-20">
           <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-8">Galería de fotos</h3>
           

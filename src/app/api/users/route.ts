@@ -39,10 +39,10 @@ export async function POST(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
     
-    // Check if user already exists
+    // Verifica si el usuario ya existe
     const existingUser = await adminDb.collection("users").doc(decodedToken.uid).get();
     if (existingUser.exists) {
-      return errorResponse("User profile already exists", 400);
+      return errorResponse("El perfil de usuario ya existe", 400);
     }
 
     const body = await parseBody(request);
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       uid: decodedToken.uid,
       email: decodedToken.email || "",
       nombre: parsedData.nombre,
-      rol: "cliente", // Default role
+      rol: "cliente", // Rol por defecto
       telefono: parsedData.telefono || null,
       createdAt: new Date(),
     };

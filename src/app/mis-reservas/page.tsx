@@ -20,14 +20,14 @@ export default function MisReservasPage() {
         const token = await getToken();
         if (!token) return;
         
-        // GET /api/reservations automatically filters by userId if not admin
+        // GET /api/reservations filtra automáticamente por userId si no es admin
         const res = await fetch("/api/reservations", {
           headers: { Authorization: `Bearer ${token}` }
         });
         const json = await res.json();
         
         if (json.success !== false) {
-          // json is either the array or {success: true, data: array}
+          // json es el array o {success: true, data: array}
           const data = Array.isArray(json) ? json : json.data || [];
           setReservations(data);
         }
@@ -57,7 +57,7 @@ export default function MisReservasPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         
-        {/* Perfil Header */}
+        {/* Perfil de Usuario */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8 flex flex-col sm:flex-row items-center justify-between">
           <div className="flex items-center space-x-4 mb-4 sm:mb-0">
             <div className="h-16 w-16 bg-gray-200 text-gray-700 font-bold text-2xl flex items-center justify-center rounded-md">
@@ -79,7 +79,7 @@ export default function MisReservasPage() {
           </button>
         </div>
 
-        {/* Stats */}
+        {/* Estadísticas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 text-center">
             <div className="text-4xl font-bold text-gray-900 mb-1">{reservations.length}</div>
@@ -95,7 +95,7 @@ export default function MisReservasPage() {
           </div>
         </div>
 
-        {/* Reservations List */}
+        {/* Lista de Reservas */}
         {loading ? (
           <div className="text-center text-gray-500 py-12">Cargando tus reservas...</div>
         ) : reservations.length === 0 ? (
