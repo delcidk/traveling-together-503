@@ -1,4 +1,5 @@
 import { adminDb } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 import { errorResponse, jsonResponse, parseBody, verifyAuthToken, verifyAdmin } from "@/lib/api-helpers";
 import { CreateReservationSchema, Reservation } from "@/lib/types";
 import { NextRequest } from "next/server";
@@ -33,30 +34,28 @@ export async function GET(request: NextRequest) {
       query = query.where("estado", "==", estado);
     }
 
-    // Ordenar por fecha de creación descendente (requerirá un índice compuesto en Firestore si se usa junto con where)
-    query = query.orderBy("createdAt", "desc");
-
+    // Para evitar requerir índices compuestos en Firestore, ordenamos los resultados en memoria
     const snapshot = await query.get();
-    const reservations: Reservation[] = [];
+    let reservations: Reservation[] = [];
 
     snapshot.forEach((doc) => {
       const data = doc.data();
       reservations.push({
         id: doc.id,
-        userId: data.userId,
-        vehiculoId: data.vehiculoId,
-        rutaId: data.rutaId,
-        origen: data.origen,
-        destino: data.destino,
-        fechaViaje: data.fechaViaje.toDate(),
+        viajeId: data.viajeId,
+        userId: data.userId || undefined,
+        clienteNombre: data.clienteNombre,
+        clienteTelefono: data.clienteTelefono,
         pasajeros: data.pasajeros,
         precioTotal: data.precioTotal,
         estado: data.estado,
-        comprobanteUrl: data.comprobanteUrl,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
       });
     });
+
+    // Ordenar por fecha de creación descendente
+    reservations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return jsonResponse(reservations);
   } catch (error: any) {
@@ -74,16 +73,31 @@ export async function POST(request: NextRequest) {
     const body = await parseBody(request);
     const parsedData = CreateReservationSchema.parse(body);
 
+    // Obtener el viaje para verificar disponibilidad (opcional pero recomendado)
+    const tripRef = adminDb.collection("trips").doc(parsedData.viajeId);
+    const tripDoc = await tripRef.get();
+    if (!tripDoc.exists) {
+      return errorResponse("El viaje especificado no existe", 404);
+    }
+
     const newResRef = adminDb.collection("reservations").doc();
     const resData = {
       ...parsedData,
-      userId: decodedToken.uid,
-      estado: "pendiente",
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    await newResRef.set(resData);
+    // Usar un batch para guardar la reserva y actualizar los asientos del viaje
+    const batch = adminDb.batch();
+    batch.set(newResRef, resData);
+    
+    // Increment the occupied seats
+    batch.update(tripRef, {
+      asientosOcupados: FieldValue.increment(parsedData.pasajeros),
+      updatedAt: new Date()
+    });
+
+    await batch.commit();
 
     return jsonResponse({
       id: newResRef.id,

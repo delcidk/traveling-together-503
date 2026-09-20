@@ -9,7 +9,7 @@ interface FormFieldProps {
 export function FormField({ label, error, children }: FormFieldProps) {
   return (
     <div className="flex flex-col">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-semibold mb-1.5" style={{ color: '#111827' }}>
         {label}
       </label>
       <div className="relative">

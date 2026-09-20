@@ -48,7 +48,7 @@ export default function RegisterPage() {
   };
 
   const inputClass = (error?: object) => 
-    `mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+    `mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400 ${
       error ? "border-red-300" : "border-gray-300"
     }`;
 

@@ -5,6 +5,8 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 import { useVehiclesContext } from "../../context/VehiclesContext";
 import { useReservationContext } from "../../context/ReservationContext";
 import { useRoutesContext } from "../../context/RoutesContext";
+import { useTripsContext } from "../../context/TripsContext";
+import Link from "next/link";
 
 // Componente Tarjeta de Métrica (Reutilizable localmente)
 function MetricCard({ 
@@ -68,6 +70,19 @@ export default function AdminPage() {
   const { reservations, loadingReservations } = useReservationContext();
   const { vehicles, loadingVehicles } = useVehiclesContext();
   const { routes, loadingRoutes } = useRoutesContext();
+  const { trips } = useTripsContext();
+
+  // Obtener las 5 reservaciones más recientes
+  const recentReservations = useMemo(() => {
+    return [...reservations].slice(0, 5); // Ya están ordenadas por createdAt desc desde el backend
+  }, [reservations]);
+
+  const getTripLabel = (tripId: string) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return "Viaje desconocido";
+    const route = routes.find(r => r.id === trip.rutaId);
+    return `${new Date(trip.fechaSalida).toLocaleDateString()} - ${route ? route.origen + ' a ' + route.destino : 'Ruta'}`;
+  };
 
   // Computar métricas utilizando useMemo para optimización
   const metrics = useMemo(() => {
@@ -130,19 +145,62 @@ export default function AdminPage() {
           />
         </div>
 
-        {/* Seccin Placeholder para Prximas Fases */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Últimas Reservaciones (Próximamente)</h3>
-            <div className="bg-gray-50 rounded p-8 text-center text-gray-500 border border-dashed border-gray-300">
-              La tabla de reservaciones recientes se implementará en la fase correspondiente.
+        {/* Sección de Últimas Reservaciones */}
+        <div className="mt-8">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-gray-900">Últimas Reservaciones</h3>
+              <Link href="/admin/reservations" className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                Ver todas &rarr;
+              </Link>
             </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Estado de Flota (Próximamente)</h3>
-            <div className="bg-gray-50 rounded p-8 text-center text-gray-500 border border-dashed border-gray-300">
-              El panel de gestión y despacho de flota se implementará en el Módulo 2.
-            </div>
+            
+            {loadingReservations && reservations.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">Cargando reservaciones...</div>
+            ) : recentReservations.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Viaje</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {recentReservations.map((res: any) => (
+                      <tr key={res.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{res.clienteNombre}</div>
+                          <div className="text-xs text-gray-500">{res.clienteTelefono || "Sin teléfono"}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">{getTripLabel(res.viajeId)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${res.estado === 'pendiente' ? 'bg-yellow-100 text-yellow-800' : ''}
+                            ${res.estado === 'confirmada' ? 'bg-blue-100 text-blue-800' : ''}
+                            ${res.estado === 'pagada' ? 'bg-green-100 text-green-800' : ''}
+                            ${res.estado === 'cancelada' ? 'bg-red-100 text-red-800' : ''}
+                          `}>
+                            {res.estado.charAt(0).toUpperCase() + res.estado.slice(1)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                          ${res.precioTotal}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-8 text-center text-gray-500 border border-dashed border-gray-300 mx-6 my-6 rounded">
+                No hay reservaciones registradas.
+              </div>
+            )}
           </div>
         </div>
       </div>

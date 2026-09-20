@@ -2,6 +2,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ReservationProvider } from "./context/ReservationContext";
 import { VehiclesProvider } from "./context/VehiclesContext";
 import { RoutesProvider } from "./context/RoutesContext";
+import { TripsProvider } from "./context/TripsContext";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -37,9 +38,11 @@ export default function RootLayout({
         <AuthProvider>
           <VehiclesProvider>
             <RoutesProvider>
-              <ReservationProvider>
-                {children}
-              </ReservationProvider>
+              <TripsProvider>
+                <ReservationProvider>
+                  {children}
+                </ReservationProvider>
+              </TripsProvider>
             </RoutesProvider>
           </VehiclesProvider>
         </AuthProvider>

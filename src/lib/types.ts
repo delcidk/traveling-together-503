@@ -31,6 +31,7 @@ export const VehicleSchema = z.object({
   capacidad: z.number().int().positive(),
   estado: z.enum(["disponible", "en_servicio", "mantenimiento"]),
   imagenUrl: z.string().url().optional(),
+  galeria: z.array(z.string().url()).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -43,6 +44,7 @@ export const CreateVehicleSchema = z.object({
   capacidad: z.number().int().positive(),
   estado: z.enum(["disponible", "en_servicio", "mantenimiento"]),
   imagenUrl: z.string().url().optional(),
+  galeria: z.array(z.string().url()).optional(),
 });
 
 export const UpdateVehicleSchema = CreateVehicleSchema.partial();
@@ -56,6 +58,7 @@ export const RouteSchema = z.object({
   tarifaBase: z.number().nonnegative(),
   descripcion: z.string().optional(),
   imagenUrl: z.string().url().optional(),
+  galeria: z.array(z.string().url()).optional(),
   activa: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -70,44 +73,57 @@ export const CreateRouteSchema = z.object({
   tarifaBase: z.number().nonnegative(),
   descripcion: z.string().optional(),
   imagenUrl: z.string().url().optional(),
+  galeria: z.array(z.string().url()).optional(),
   activa: z.boolean().default(true),
 });
 
 export const UpdateRouteSchema = CreateRouteSchema.partial();
 
-// --- Reservations ---
+// ----------------------
+// VIAJES (TRIPS)
+// ----------------------
+export const TripSchema = z.object({
+  rutaId: z.string().min(1, "La ruta es requerida"),
+  vehiculoId: z.string().min(1, "El vehículo es requerido"),
+  conductor: z.string().optional(),
+  fechaSalida: z.date(),
+  estado: z.enum(["programado", "en_curso", "finalizado", "cancelado"]).default("programado"),
+  asientosOcupados: z.number().default(0),
+});
+
+export const CreateTripSchema = TripSchema;
+export const UpdateTripSchema = TripSchema.partial();
+
+export type Trip = z.infer<typeof TripSchema> & {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+// ----------------------
+// RESERVAS (RESERVATIONS)
+// ----------------------
 export const ReservationSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  vehiculoId: z.string(),
-  rutaId: z.string(),
-  origen: z.string(),
-  destino: z.string(),
-  fechaViaje: z.date(),
-  pasajeros: z.number().int().positive(),
+  viajeId: z.string().min(1, "El viaje es requerido"),
+  userId: z.string().optional(),
+  clienteNombre: z.string().min(1, "El nombre del cliente es requerido"),
+  clienteTelefono: z.string().optional(),
+  pasajeros: z.number().min(1, "Debe haber al menos 1 pasajero"),
   precioTotal: z.number().nonnegative(),
-  estado: z.enum(["pendiente", "confirmada", "cancelada", "completada"]),
-  comprobanteUrl: z.string().url().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  estado: z.enum(["pendiente", "confirmada", "pagada", "cancelada"]).default("pendiente"),
 });
 
-export type Reservation = z.infer<typeof ReservationSchema>;
+export const CreateReservationSchema = ReservationSchema;
+export const UpdateReservationSchema = ReservationSchema.partial();
 
-export const CreateReservationSchema = z.object({
-  vehiculoId: z.string(),
-  rutaId: z.string(),
-  origen: z.string(),
-  destino: z.string(),
-  fechaViaje: z.coerce.date(),
-  pasajeros: z.number().int().positive(),
-  precioTotal: z.number().nonnegative(),
-});
-
-export const UpdateReservationSchema = z.object({
-  estado: z.enum(["pendiente", "confirmada", "cancelada", "completada"]).optional(),
-  comprobanteUrl: z.string().url().optional(),
-});
+export type Reservation = z.infer<typeof ReservationSchema> & {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Campos opcionales para join
+  viajeFecha?: Date;
+  viajeRuta?: string;
+};
 
 // --- API Responses ---
 export interface ApiResponse<T = any> {

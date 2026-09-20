@@ -8,6 +8,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormField } from "../../../components/FormField";
+import { ImageUpload } from "../../../components/ImageUpload";
+import { MultiImageUpload } from "../../../components/MultiImageUpload";
 import { toast } from "react-hot-toast";
 
 const VehicleFormSchema = z.object({
@@ -16,6 +18,7 @@ const VehicleFormSchema = z.object({
   capacidad: z.number().min(1, "La capacidad debe ser mayor a 0"),
   estado: z.enum(["disponible", "en_servicio", "mantenimiento"]),
   imagenUrl: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
+  galeria: z.array(z.string()).optional(),
 });
 
 type VehicleFormValues = z.infer<typeof VehicleFormSchema>;
@@ -26,6 +29,7 @@ const INITIAL_FORM_DATA: VehicleFormValues = {
   capacidad: 1,
   estado: "disponible",
   imagenUrl: "",
+  galeria: [],
 };
 
 export default function VehiclesPage() {
@@ -37,6 +41,8 @@ export default function VehiclesPage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormValues>({
     resolver: zodResolver(VehicleFormSchema),
@@ -58,6 +64,7 @@ export default function VehiclesPage() {
       capacidad: vehicle.capacidad,
       estado: vehicle.estado as any,
       imagenUrl: vehicle.imagenUrl || "",
+      galeria: vehicle.galeria || [],
     });
     setIsModalOpen(true);
   };
@@ -109,7 +116,7 @@ export default function VehiclesPage() {
   };
 
   const inputClass = (error?: object) => 
-    `mt-1 block w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+    `mt-1 block w-full border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white ${
       error ? "border-red-300 bg-red-50" : "border-gray-300"
     }`;
 
@@ -190,65 +197,74 @@ export default function VehiclesPage() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed z-50 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={handleCloseModal}></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">
-                    {editingId ? "Editar Vehículo" : "Nuevo Vehículo"}
-                  </h3>
+        <div className="fixed z-50 inset-0 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm transition-opacity" onClick={handleCloseModal}>
+          <div 
+            className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+            style={{ backgroundColor: '#ffffff', color: '#111827' }} // Forzando colores anti-dark mode
+          >
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[90vh]">
+              <div className="px-6 pt-6 pb-4 overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
+                <h3 className="text-xl font-bold text-gray-900 mb-6 border-b pb-2" id="modal-title">
+                  {editingId ? "Editar Vehículo" : "Nuevo Vehículo"}
+                </h3>
+                
+                <div className="space-y-5">
+                  <FormField label="Modelo y Año del vehículo" error={errors.nombre?.message}>
+                    <input type="text" {...register("nombre")} className={inputClass(errors.nombre)} placeholder="Ej. Toyota Hiace 2024" />
+                  </FormField>
                   
-                  <div className="space-y-4">
-                    <FormField label="Nombre del vehículo" error={errors.nombre?.message}>
-                      <input type="text" {...register("nombre")} className={inputClass(errors.nombre)} />
-                    </FormField>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <FormField label="Tipo" error={errors.tipo?.message}>
-                        <select {...register("tipo")} className={`bg-white ${inputClass(errors.tipo)}`}>
-                          <option value="van">Van</option>
-                          <option value="microbus">Microbús</option>
-                          <option value="bus">Autobús</option>
-                        </select>
-                      </FormField>
-
-                      <FormField label="Capacidad (pasajeros)" error={errors.capacidad?.message}>
-                        <input type="number" min="1" {...register("capacidad", { valueAsNumber: true })} className={inputClass(errors.capacidad)} />
-                      </FormField>
-                    </div>
-
-                    <FormField label="Estado Operativo" error={errors.estado?.message}>
-                      <select {...register("estado")} className={`bg-white ${inputClass(errors.estado)}`}>
-                        <option value="disponible">Disponible</option>
-                        <option value="en_servicio">En Servicio</option>
-                        <option value="mantenimiento">En Mantenimiento</option>
+                  <div className="grid grid-cols-2 gap-5">
+                    <FormField label="Tipo de Vehículo" error={errors.tipo?.message}>
+                      <select {...register("tipo")} className={`bg-white ${inputClass(errors.tipo)}`}>
+                        <option value="van">Van (Minivan)</option>
+                        <option value="microbus">Microbús (15-20 pax)</option>
+                        <option value="bus">Autobús (30+ pax)</option>
                       </select>
                     </FormField>
 
-                    <FormField label="URL de Imagen (Opcional)" error={errors.imagenUrl?.message}>
-                      <input type="url" placeholder="https://..." {...register("imagenUrl")} className={inputClass(errors.imagenUrl)} />
+                    <FormField label="Capacidad (pasajeros)" error={errors.capacidad?.message}>
+                      <input type="number" min="1" placeholder="Ej. 15" {...register("capacidad", { valueAsNumber: true })} className={inputClass(errors.capacidad)} />
                     </FormField>
                   </div>
+
+                  <FormField label="Estado Operativo actual" error={errors.estado?.message}>
+                    <select {...register("estado")} className={`bg-white ${inputClass(errors.estado)}`}>
+                      <option value="disponible">🟢 Disponible para viajes</option>
+                      <option value="en_servicio">🔵 En Servicio (Ocupado)</option>
+                      <option value="mantenimiento">🔴 En Mantenimiento</option>
+                    </select>
+                  </FormField>
+
+                  <FormField label="Fotografía Principal (Portada)" error={errors.imagenUrl?.message}>
+                    <ImageUpload 
+                      value={watch("imagenUrl")} 
+                      onChange={(url) => setValue("imagenUrl", url, { shouldValidate: true, shouldDirty: true })} 
+                    />
+                  </FormField>
+
+                  <FormField label="Galería de Fotos Adicionales" error={errors.galeria?.message}>
+                    <MultiImageUpload 
+                      value={watch("galeria")} 
+                      onChange={(urls) => setValue("galeria", urls, { shouldValidate: true, shouldDirty: true })} 
+                    />
+                  </FormField>
                 </div>
-                
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button type="submit" disabled={isSubmitting}
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-                  >
-                    {isSubmitting ? "Guardando..." : "Guardar"}
-                  </button>
-                  <button type="button" onClick={handleCloseModal}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+              
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-row-reverse rounded-b-2xl" style={{ backgroundColor: '#f9fafb' }}>
+                <button type="submit" disabled={isSubmitting}
+                  className="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-5 py-2.5 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto disabled:opacity-50 transition-colors"
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar"}
+                </button>
+                <button type="button" onClick={handleCloseModal}
+                  className="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-5 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

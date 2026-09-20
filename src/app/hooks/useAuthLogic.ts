@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { User, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { User as UserProfile } from "@/lib/types";
 
@@ -62,6 +62,10 @@ export function useAuthLogic() {
     // onAuthStateChanged se dispara y actualiza el estado
   };
 
+  const resetPassword = async (email: string) => {
+    await sendPasswordResetEmail(auth, email);
+  };
+
   const register = async (email: string, pass: string, nombre: string, telefono?: string) => {
     // 1. Crear usuario en Firebase Auth
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
@@ -102,6 +106,7 @@ export function useAuthLogic() {
     login,
     register,
     logout,
+    resetPassword,
     isAdmin,
   };
 }

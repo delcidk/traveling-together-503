@@ -33,7 +33,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Link href="/" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                       Inicio
                     </Link>
-                    {userProfile?.rol === "admin" && (
+                    {userProfile?.rol === "admin" ? (
                       <>
                         <Link href="/admin" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                           Dashboard
@@ -41,10 +41,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link href="/admin/vehicles" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                           Flota
                         </Link>
+                        <Link href="/admin/routes" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                          Rutas
+                        </Link>
+                        <Link href="/admin/trips" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                          Viajes Programados
+                        </Link>
                         <Link href="/admin/reservations" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                           Reservaciones
                         </Link>
                       </>
+                    ) : (
+                      <Link href="/mis-reservas" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                        Mis Reservas
+                      </Link>
                     )}
                   </nav>
                 </div>

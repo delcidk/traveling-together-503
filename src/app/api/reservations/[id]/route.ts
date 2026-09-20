@@ -11,6 +11,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
+    await verifyAdmin(decodedToken.uid);
     
     const doc = await adminDb.collection("reservations").doc(id).get();
     
@@ -19,24 +20,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     const data = doc.data()!;
-    
-    // Check ownership or admin status
-    if (data.userId !== decodedToken.uid) {
-      await verifyAdmin(decodedToken.uid); // Will throw if not admin
-    }
 
     return jsonResponse({
       id: doc.id,
-      userId: data.userId,
-      vehiculoId: data.vehiculoId,
-      rutaId: data.rutaId,
-      origen: data.origen,
-      destino: data.destino,
-      fechaViaje: data.fechaViaje.toDate(),
+      viajeId: data.viajeId,
+      userId: data.userId || undefined,
+      clienteNombre: data.clienteNombre,
+      clienteTelefono: data.clienteTelefono,
       pasajeros: data.pasajeros,
       precioTotal: data.precioTotal,
       estado: data.estado,
-      comprobanteUrl: data.comprobanteUrl,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
     });
@@ -55,6 +48,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
+    await verifyAdmin(decodedToken.uid);
     
     const docRef = adminDb.collection("reservations").doc(id);
     const doc = await docRef.get();
@@ -63,37 +57,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return errorResponse("Reservation not found", 404);
     }
 
-    const data = doc.data()!;
-    
-    let isAdmin = false;
-    try {
-      isAdmin = await verifyAdmin(decodedToken.uid);
-    } catch {
-      // not admin
-    }
-
-    if (data.userId !== decodedToken.uid && !isAdmin) {
-      return errorResponse("Forbidden: you can only update your own reservations", 403);
-    }
-
     const body = await parseBody(request);
     const parsedData = UpdateReservationSchema.parse(body);
 
     const updateData: any = { updatedAt: new Date() };
     
-    // Lógica de negocio para actualización de estado:
-    // Cliente solo puede cancelar. Admin puede cambiar a confirmada, completada, etc.
-    if (parsedData.estado !== undefined) {
-      if (!isAdmin && parsedData.estado !== "cancelada") {
-        return errorResponse("Forbidden: clients can only cancel reservations", 403);
-      }
-      updateData.estado = parsedData.estado;
-    }
-
-    // Comprobante
-    if (parsedData.comprobanteUrl !== undefined) {
-      updateData.comprobanteUrl = parsedData.comprobanteUrl;
-    }
+    if (parsedData.estado !== undefined) updateData.estado = parsedData.estado;
+    if (parsedData.viajeId !== undefined) updateData.viajeId = parsedData.viajeId;
+    if (parsedData.userId !== undefined) updateData.userId = parsedData.userId;
+    if (parsedData.clienteNombre !== undefined) updateData.clienteNombre = parsedData.clienteNombre;
+    if (parsedData.clienteTelefono !== undefined) updateData.clienteTelefono = parsedData.clienteTelefono;
+    if (parsedData.pasajeros !== undefined) updateData.pasajeros = parsedData.pasajeros;
+    if (parsedData.precioTotal !== undefined) updateData.precioTotal = parsedData.precioTotal;
 
     await docRef.update(updateData);
 
@@ -102,16 +77,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     
     return jsonResponse({
       id: updatedDoc.id,
-      userId: updatedData.userId,
-      vehiculoId: updatedData.vehiculoId,
-      rutaId: updatedData.rutaId,
-      origen: updatedData.origen,
-      destino: updatedData.destino,
-      fechaViaje: updatedData.fechaViaje.toDate(),
+      viajeId: updatedData.viajeId,
+      userId: updatedData.userId || undefined,
+      clienteNombre: updatedData.clienteNombre,
+      clienteTelefono: updatedData.clienteTelefono,
       pasajeros: updatedData.pasajeros,
       precioTotal: updatedData.precioTotal,
       estado: updatedData.estado,
-      comprobanteUrl: updatedData.comprobanteUrl,
       createdAt: updatedData.createdAt.toDate(),
       updatedAt: updatedData.updatedAt.toDate(),
     });

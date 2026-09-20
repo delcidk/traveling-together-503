@@ -56,7 +56,7 @@ export default function LoginPage() {
           <input
             type="email"
             {...register("email")}
-            className={`appearance-none block w-full px-3 py-3 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+            className={`appearance-none block w-full px-3 py-3 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white ${
               errors.email ? "border-red-300" : "border-gray-300"
             }`}
             placeholder="ejemplo@correo.com"
@@ -68,7 +68,7 @@ export default function LoginPage() {
             <input
               type={showPassword ? "text" : "password"}
               {...register("password")}
-              className={`appearance-none block w-full px-3 py-3 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm pr-20 ${
+              className={`appearance-none block w-full px-3 py-3 border rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white pr-20 ${
                 errors.password ? "border-red-300" : "border-gray-300"
               }`}
               placeholder="********"
@@ -95,9 +95,9 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-4 text-center">
-        <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+        <Link href="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-500">
           ¿Olvidaste tu contraseña?
-        </a>
+        </Link>
       </div>
 
       <div className="mt-8">

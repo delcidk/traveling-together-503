@@ -25,6 +25,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       tarifaBase: data.tarifaBase,
       descripcion: data.descripcion,
       imagenUrl: data.imagenUrl,
+      galeria: data.galeria || [],
       activa: data.activa,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
@@ -57,6 +58,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (parsedData.tarifaBase !== undefined) updateData.tarifaBase = parsedData.tarifaBase;
     if (parsedData.descripcion !== undefined) updateData.descripcion = parsedData.descripcion;
     if (parsedData.imagenUrl !== undefined) updateData.imagenUrl = parsedData.imagenUrl;
+    if (parsedData.galeria !== undefined) updateData.galeria = parsedData.galeria;
     if (parsedData.activa !== undefined) updateData.activa = parsedData.activa;
 
     await docRef.update(updateData);
@@ -72,6 +74,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       tarifaBase: data.tarifaBase,
       descripcion: data.descripcion,
       imagenUrl: data.imagenUrl,
+      galeria: data.galeria || [],
       activa: data.activa,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
