@@ -22,7 +22,8 @@ export function useAuthLogic() {
     try {
       const token = await currentUser.getIdToken();
       const res = await fetch(`/api/users/${currentUser.uid}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store'
       });
       const json = await res.json();
       if (json.success && json.data) {

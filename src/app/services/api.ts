@@ -1,5 +1,5 @@
-export async function fetchApi<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, options);
+export async function fetchApi<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, { cache: 'no-store', ...options });
   const json = await res.json();
   
   if (!res.ok || !json.success) {

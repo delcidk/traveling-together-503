@@ -3,6 +3,8 @@ import { errorResponse, jsonResponse, parseBody, verifyAuthToken, verifyAdmin } 
 import { UpdateUserSchema } from "@/lib/types";
 import { NextRequest } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: Promise<{ uid: string }>;
 }
