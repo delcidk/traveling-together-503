@@ -26,6 +26,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       descripcion: data.descripcion,
       imagenUrl: data.imagenUrl,
       galeria: data.galeria || [],
+      categoria: data.categoria || undefined,
       activa: data.activa,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
@@ -59,6 +60,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (parsedData.descripcion !== undefined) updateData.descripcion = parsedData.descripcion;
     if (parsedData.imagenUrl !== undefined) updateData.imagenUrl = parsedData.imagenUrl;
     if (parsedData.galeria !== undefined) updateData.galeria = parsedData.galeria;
+    if (parsedData.categoria !== undefined) updateData.categoria = parsedData.categoria;
     if (parsedData.activa !== undefined) updateData.activa = parsedData.activa;
 
     await docRef.update(updateData);
@@ -75,6 +77,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       descripcion: data.descripcion,
       imagenUrl: data.imagenUrl,
       galeria: data.galeria || [],
+      categoria: data.categoria || undefined,
       activa: data.activa,
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),

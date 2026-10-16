@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
         descripcion: data.descripcion,
         imagenUrl: data.imagenUrl,
         galeria: data.galeria || [],
+        categoria: data.categoria || undefined,
         activa: data.activa,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),

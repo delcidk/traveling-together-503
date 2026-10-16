@@ -59,6 +59,7 @@ export const RouteSchema = z.object({
   descripcion: z.string().optional(),
   imagenUrl: z.string().url().optional(),
   galeria: z.array(z.string().url()).optional(),
+  categoria: z.enum(["playa", "internacional", "aeropuerto", "ciudad", "escenico"]).optional(),
   activa: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -74,6 +75,7 @@ export const CreateRouteSchema = z.object({
   descripcion: z.string().optional(),
   imagenUrl: z.string().url().optional(),
   galeria: z.array(z.string().url()).optional(),
+  categoria: z.enum(["playa", "internacional", "aeropuerto", "ciudad", "escenico"]).optional(),
   activa: z.boolean().default(true),
 });
 
