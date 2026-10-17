@@ -19,6 +19,16 @@ export const CATEGORY_LABELS: Record<string, string> = {
   escenico: "Escénico",
 };
 
+export const HOME_STATS = [
+  { value: "10+", label: "Rutas activas" },
+  { value: "500+", label: "Viajeros felices" },
+  { value: "24/7", label: "Atención directa" },
+];
+
+export const BUSINESS_HOURS = "Lunes a Domingo · 5:00 AM – 9:00 PM (Hora El Salvador)";
+export const WHATSAPP_DISPLAY = "+503 6955-7127";
+export const GENERAL_QUOTE_MESSAGE = "Hola, me gustaría cotizar un viaje privado en Centroamérica.";
+
 export function buildWhatsAppUrl(text?: string): string {
   if (!text) return WHATSAPP_URL;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;

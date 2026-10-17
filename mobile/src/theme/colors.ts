@@ -8,4 +8,5 @@ export const colors = {
   whatsapp: "#25D366",
   danger: "#DC2626",
   placeholder: "#D9D9D9",
+  surfaceAlt: "#F9FAFB",
 };

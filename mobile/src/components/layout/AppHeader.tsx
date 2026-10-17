@@ -1,21 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
+import { Logo } from './Logo';
 
 export const AppHeader = () => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.header}>
-      <View style={styles.logoContainer}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="bus" size={16} color="#fff" />
-        </View>
-        <Text style={styles.logoText}>TRAVELING TOGETHER </Text>
-        <Text style={styles.logoTextGray}>503</Text>
-      </View>
+      <Logo />
       <TouchableOpacity 
         style={styles.menuButton} 
         onPress={() => (navigation as any).toggleDrawer()}
@@ -42,26 +37,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    backgroundColor: colors.primary,
-    borderRadius: 4,
-    padding: 4,
-    marginRight: 8,
-  },
-  logoText: {
-    fontFamily: 'BarlowCondensed_800ExtraBold',
-    fontSize: 18,
-    color: colors.primary,
-  },
-  logoTextGray: {
-    fontFamily: 'BarlowCondensed_800ExtraBold',
-    fontSize: 18,
-    color: colors.textMuted,
-  },
   menuButton: {
     padding: 4,
     borderWidth: 1,
@@ -69,3 +44,4 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 });
+

@@ -9,6 +9,7 @@ interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   style?: ViewStyle;
   textStyle?: TextStyle;
 }
@@ -20,6 +21,7 @@ export const Button = ({
   loading,
   disabled,
   icon,
+  rightIcon,
   style,
   textStyle,
 }: ButtonProps) => {
@@ -28,14 +30,14 @@ export const Button = ({
   let borderColor = colors.primary;
 
   if (variant === "outline") {
-    backgroundColor = "transparent";
+    backgroundColor = colors.surface;
     textColor = colors.primary;
     borderColor = colors.border;
   } else if (variant === "whatsapp") {
     backgroundColor = colors.whatsapp;
     borderColor = colors.whatsapp;
   } else if (variant === "whatsappOutline") {
-    backgroundColor = "transparent";
+    backgroundColor = colors.surface;
     textColor = colors.whatsapp;
     borderColor = colors.whatsapp;
   } else if (variant === "danger") {
@@ -64,6 +66,7 @@ export const Button = ({
         <>
           {icon ? <View style={styles.iconContainer}>{icon}</View> : null}
           {title ? <Text style={[styles.text, { color: textColor }, textStyle]}>{title}</Text> : null}
+          {rightIcon ? <View style={styles.rightIconContainer}>{rightIcon}</View> : null}
         </>
       )}
     </TouchableOpacity>
@@ -85,6 +88,9 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     marginRight: 8,
+  },
+  rightIconContainer: {
+    marginLeft: 8,
   },
   disabled: {
     opacity: 0.7,

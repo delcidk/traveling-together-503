@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ViewStyle } from "react-native";
 import { colors } from "../../theme/colors";
 
 interface StatBoxProps {
-  label: string;
+  label?: string;
   value: string | number;
   sublabel?: string;
   style?: ViewStyle;
@@ -19,7 +19,9 @@ export const StatBox = ({
 }: StatBoxProps) => {
   return (
     <View style={[styles.box, centered && styles.centered, style]}>
-      <Text style={[styles.label, centered && styles.centeredText]}>{label}</Text>
+      {label ? (
+        <Text style={[styles.label, centered && styles.centeredText]}>{label}</Text>
+      ) : null}
       <Text style={[styles.value, centered && styles.centeredText]}>{value}</Text>
       {sublabel ? (
         <Text style={[styles.sublabel, centered && styles.centeredText]}>{sublabel}</Text>
