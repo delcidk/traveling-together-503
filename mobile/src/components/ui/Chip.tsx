@@ -23,7 +23,11 @@ export const Chip = ({ label, count, active, onPress, style }: ChipProps) => {
     >
       <Text style={[styles.text, active ? styles.textActive : styles.textInactive]}>
         {label}
-        {count !== undefined ? ` (${count})` : ""}
+        {count !== undefined ? (
+          <Text style={active ? styles.countActive : styles.countInactive}>
+            {` (${count})`}
+          </Text>
+        ) : null}
       </Text>
     </TouchableOpacity>
   );
@@ -57,5 +61,11 @@ const styles = StyleSheet.create({
   },
   textInactive: {
     color: "#374151",
+  },
+  countActive: {
+    color: "#D1D5DB",
+  },
+  countInactive: {
+    color: colors.textSubtle,
   },
 });

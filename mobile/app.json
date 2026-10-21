@@ -27,7 +27,13 @@
       "expo-status-bar",
       "expo-font",
       "expo-splash-screen",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permite seleccionar fotos para las rutas."
+        }
+      ]
     ]
   }
 }
