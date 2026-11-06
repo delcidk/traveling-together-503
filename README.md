@@ -1,3 +1,6 @@
+Enlace al documento PDF de Etapa 3: https://drive.google.com/file/d/18fnegXSXV0HOCsDxldk28Cbu7OU3seea/view?usp=sharing
+Enlace al vídeo de explicación: https://www.youtube.com/watch?v=RV-qne25rxk
+
 # Traveling Together 503 - Plataforma Web
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
