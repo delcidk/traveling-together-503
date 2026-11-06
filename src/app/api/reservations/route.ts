@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     
     let isAdmin = false;
     try {
-      isAdmin = await verifyAdmin(decodedToken.uid);
+      isAdmin = await verifyAdmin(decodedToken.uid, decodedToken.admin);
     } catch {
       // No es admin
     }
@@ -40,17 +40,28 @@ export async function GET(request: NextRequest) {
 
     snapshot.forEach((doc) => {
       const data = doc.data();
+      const fechaSalida = data.fechaSalida?.toDate
+        ? data.fechaSalida.toDate()
+        : data.fechaSalida
+        ? new Date(data.fechaSalida)
+        : undefined;
       reservations.push({
         id: doc.id,
         viajeId: data.viajeId,
         userId: data.userId || undefined,
+        rutaId: data.rutaId || undefined,
+        rutaNombre: data.rutaNombre || undefined,
+        fechaSalida,
+        vehiculoId: data.vehiculoId || undefined,
         clienteNombre: data.clienteNombre,
         clienteTelefono: data.clienteTelefono,
         pasajeros: data.pasajeros,
         precioTotal: data.precioTotal,
         estado: data.estado,
-        createdAt: data.createdAt.toDate(),
-        updatedAt: data.updatedAt.toDate(),
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt),
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt),
+        viajeFecha: fechaSalida,
+        viajeRuta: data.rutaNombre || undefined,
       });
     });
 
@@ -70,46 +81,128 @@ export async function POST(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
 
+    let isAdmin = false;
+    try {
+      isAdmin = await verifyAdmin(decodedToken.uid, decodedToken.admin);
+    } catch {
+      // Es cliente
+    }
+
     const body = await parseBody(request);
     const parsedData = CreateReservationSchema.parse(body);
 
-    // Obtener el viaje para verificar disponibilidad (opcional pero recomendado)
-    const tripRef = adminDb.collection("trips").doc(parsedData.viajeId);
-    const tripDoc = await tripRef.get();
-    if (!tripDoc.exists) {
-      return errorResponse("El viaje especificado no existe", 404);
-    }
-
     const newResRef = adminDb.collection("reservations").doc();
-    const resData = {
-      ...parsedData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const now = new Date();
 
-    // Usar un batch para guardar la reserva y actualizar los asientos del viaje
-    const batch = adminDb.batch();
-    batch.set(newResRef, resData);
-    
-    // Incrementar los asientos ocupados
-    batch.update(tripRef, {
-      asientosOcupados: FieldValue.increment(parsedData.pasajeros),
-      updatedAt: new Date()
+    const createdReservation = await adminDb.runTransaction(async (tx) => {
+      const tripRef = adminDb.collection("trips").doc(parsedData.viajeId);
+      const tripDoc = await tx.get(tripRef);
+      if (!tripDoc.exists) {
+        throw new Error("NOT_FOUND:El viaje especificado no existe");
+      }
+
+      const tripData = tripDoc.data()!;
+      if (!isAdmin && tripData.estado !== "programado") {
+        throw new Error("BAD_REQUEST:Este viaje no está disponible para reservar");
+      }
+
+      const routeRef = adminDb.collection("routes").doc(tripData.rutaId);
+      const vehicleRef = adminDb.collection("vehicles").doc(tripData.vehiculoId);
+      const [routeDoc, vehicleDoc] = await Promise.all([
+        tx.get(routeRef),
+        tx.get(vehicleRef),
+      ]);
+
+      const capacidad = vehicleDoc.exists
+        ? Number(vehicleDoc.data()!.capacidad || 8)
+        : 8;
+      const ocupados = Number(tripData.asientosOcupados || 0);
+
+      const effectiveEstado = isAdmin
+        ? parsedData.estado || "pendiente"
+        : "pendiente";
+
+      if (
+        effectiveEstado !== "cancelada" &&
+        ocupados + parsedData.pasajeros > capacidad
+      ) {
+        const libres = Math.max(0, capacidad - ocupados);
+        throw new Error(
+          `BAD_REQUEST:No hay suficientes asientos disponibles (disponibles: ${libres})`
+        );
+      }
+
+      const tarifaBase = routeDoc.exists
+        ? Number(routeDoc.data()!.tarifaBase || 0)
+        : 0;
+      const calculatedPrice = Number(
+        (tarifaBase * parsedData.pasajeros).toFixed(2)
+      );
+
+      const effectivePrecioTotal =
+        isAdmin && parsedData.precioTotal !== undefined
+          ? parsedData.precioTotal
+          : calculatedPrice;
+
+      const effectiveUserId = isAdmin
+        ? parsedData.userId || decodedToken.uid
+        : decodedToken.uid;
+
+      const rutaNombre = routeDoc.exists
+        ? `${routeDoc.data()!.origen} ➔ ${routeDoc.data()!.destino}`
+        : undefined;
+      const fechaSalida = tripData.fechaSalida?.toDate
+        ? tripData.fechaSalida.toDate()
+        : new Date(tripData.fechaSalida);
+
+      const firestoreDocData: Record<string, any> = {
+        viajeId: parsedData.viajeId,
+        userId: effectiveUserId,
+        rutaId: tripData.rutaId,
+        rutaNombre: rutaNombre || null,
+        fechaSalida,
+        vehiculoId: tripData.vehiculoId,
+        clienteNombre: parsedData.clienteNombre.trim(),
+        clienteTelefono: parsedData.clienteTelefono?.trim() || null,
+        pasajeros: parsedData.pasajeros,
+        precioTotal: effectivePrecioTotal,
+        estado: effectiveEstado,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      };
+
+      tx.set(newResRef, firestoreDocData);
+
+      if (effectiveEstado !== "cancelada") {
+        tx.update(tripRef, {
+          asientosOcupados: ocupados + parsedData.pasajeros,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
+
+      return {
+        id: newResRef.id,
+        ...firestoreDocData,
+        createdAt: now,
+        updatedAt: now,
+      };
     });
 
-    await batch.commit();
-
-    return jsonResponse({
-      id: newResRef.id,
-      ...resData,
-    }, 201);
+    return jsonResponse(createdReservation, 201);
   } catch (error: any) {
     if (error.name === "ZodError") {
       return errorResponse(error.errors, 400);
     }
-    if (error.message.includes("token") || error.message.includes("Authorization")) {
-      return errorResponse(error.message, 401);
+    const msg = String(error.message || "");
+    if (msg.startsWith("NOT_FOUND:")) {
+      return errorResponse(msg.replace("NOT_FOUND:", ""), 404);
     }
-    return errorResponse(error.message || "Internal server error", 500);
+    if (msg.startsWith("BAD_REQUEST:")) {
+      return errorResponse(msg.replace("BAD_REQUEST:", ""), 400);
+    }
+    if (msg.includes("token") || msg.includes("Authorization")) {
+      return errorResponse(msg, 401);
+    }
+    return errorResponse(msg || "Internal server error", 500);
   }
 }

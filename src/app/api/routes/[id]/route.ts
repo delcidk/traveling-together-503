@@ -40,7 +40,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const body = await parseBody(request);
     const parsedData = UpdateRouteSchema.parse(body);
@@ -100,7 +100,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const docRef = adminDb.collection("routes").doc(id);
     const doc = await docRef.get();

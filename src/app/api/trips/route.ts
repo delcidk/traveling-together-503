@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const body = (await parseBody(request)) as any;
     // Convertir fecha string a Date si es necesario

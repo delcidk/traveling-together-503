@@ -138,7 +138,7 @@ export default function RouteDetailScreen() {
         {route.origen} ➔ {route.destino}
       </Text>
       <Text style={styles.subtitle}>
-        {route.origen} ➔ {route.destino}
+        {route.distanciaKm} km • Duración estimada: {duration}
       </Text>
 
       <Text style={styles.description}>

@@ -108,6 +108,10 @@ export type Trip = z.infer<typeof TripSchema> & {
 export const ReservationSchema = z.object({
   viajeId: z.string().min(1, "El viaje es requerido"),
   userId: z.string().optional(),
+  rutaId: z.string().optional(),
+  rutaNombre: z.string().optional(),
+  fechaSalida: z.date().optional(),
+  vehiculoId: z.string().optional(),
   clienteNombre: z.string().min(1, "El nombre del cliente es requerido"),
   clienteTelefono: z.string().optional(),
   pasajeros: z.number().min(1, "Debe haber al menos 1 pasajero"),
@@ -115,8 +119,11 @@ export const ReservationSchema = z.object({
   estado: z.enum(["pendiente", "confirmada", "pagada", "cancelada"]).default("pendiente"),
 });
 
-export const CreateReservationSchema = ReservationSchema;
-export const UpdateReservationSchema = ReservationSchema.partial();
+export const CreateReservationSchema = ReservationSchema.extend({
+  precioTotal: z.number().nonnegative().optional(),
+  fechaSalida: z.union([z.date(), z.string()]).optional(),
+});
+export const UpdateReservationSchema = CreateReservationSchema.partial();
 
 export type Reservation = z.infer<typeof ReservationSchema> & {
   id: string;

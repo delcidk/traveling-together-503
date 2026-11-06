@@ -11,13 +11,18 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.DelCid.travelingtogether503",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +38,15 @@
         {
           "photosPermission": "Permite seleccionar fotos para las rutas."
         }
-      ]
-    ]
+      ],
+      "@react-native-google-signin/google-signin",
+      "expo-build-properties"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c046a3d0-5e67-4736-9424-58598fcbb075"
+      }
+    }
   }
 }

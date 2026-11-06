@@ -15,12 +15,17 @@ const removeSessionCookie = () => {
 export function useAuthLogic() {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [claimAdmin, setClaimAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Función interna para traer el perfil
   const fetchProfile = async (currentUser: User) => {
     try {
-      const token = await currentUser.getIdToken();
+      const [token, tokenResult] = await Promise.all([
+        currentUser.getIdToken(),
+        currentUser.getIdTokenResult().catch(() => null),
+      ]);
+      setClaimAdmin(Boolean(tokenResult?.claims?.admin));
       const res = await fetch(`/api/users/${currentUser.uid}`, {
         headers: { Authorization: `Bearer ${token}` },
         cache: 'no-store'
@@ -46,6 +51,7 @@ export function useAuthLogic() {
       } else {
         removeSessionCookie();
         setUserProfile(null);
+        setClaimAdmin(false);
       }
       setLoading(false);
     });
@@ -96,7 +102,7 @@ export function useAuthLogic() {
     // onAuthStateChanged se dispara, setea user a null y borra cookies
   };
 
-  const isAdmin = userProfile?.rol === "admin";
+  const isAdmin = claimAdmin || userProfile?.rol === "admin";
 
   return {
     user,

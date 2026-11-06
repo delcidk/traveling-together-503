@@ -15,18 +15,23 @@ import { EmptyState } from "../../src/components/ui/EmptyState";
 import { AdminHeader } from "../../src/components/admin/AdminHeader";
 import { ReservationsTab } from "../../src/components/admin/ReservationsTab";
 import { RoutesTab } from "../../src/components/admin/RoutesTab";
+import { TripsTab } from "../../src/components/admin/TripsTab";
+import { VehiclesTab } from "../../src/components/admin/VehiclesTab";
 import { countByStatus } from "../../src/utils/adminHelpers";
 
-type AdminTabKey = "reservaciones" | "rutas";
+type AdminTabKey = "reservaciones" | "rutas" | "viajes" | "vehiculos";
 
 const TAB_OPTIONS: { value: AdminTabKey; label: string }[] = [
-  { value: "reservaciones", label: "Reservaciones" },
+  { value: "reservaciones", label: "Reservas" },
   { value: "rutas", label: "Rutas" },
+  { value: "viajes", label: "Viajes" },
+  { value: "vehiculos", label: "Flota" },
 ];
 
 function AdminDashboardContent() {
   const { userProfile } = useAuth();
-  const { reservations, routes, loading, error, refresh } = useAdmin();
+  const { reservations, routes, trips, vehicles, loading, error, refresh } =
+    useAdmin();
   const [activeTab, setActiveTab] = useState<AdminTabKey>("reservaciones");
 
   const statusCounts = useMemo(
@@ -37,6 +42,16 @@ function AdminDashboardContent() {
   const activeRoutesCount = useMemo(
     () => routes.filter((r) => r.activa).length,
     [routes]
+  );
+
+  const scheduledTripsCount = useMemo(
+    () => trips.filter((t) => t.estado === "programado").length,
+    [trips]
+  );
+
+  const availableVehiclesCount = useMemo(
+    () => vehicles.filter((v) => v.estado === "disponible").length,
+    [vehicles]
   );
 
   if (loading && reservations.length === 0 && routes.length === 0) {
@@ -108,13 +123,13 @@ function AdminDashboardContent() {
 
         <View style={styles.metricsRow}>
           <StatBox
-            value={statusCounts.cancelada || 0}
-            sublabel="Canceladas"
+            value={`${activeRoutesCount}/${routes.length}`}
+            sublabel="Rutas activas"
             style={styles.metricItem}
           />
           <StatBox
-            value={`${activeRoutesCount}/${routes.length}`}
-            sublabel="Rutas activas"
+            value={`${scheduledTripsCount} viajes • ${availableVehiclesCount} veh.`}
+            sublabel="Salidas y Flota disp."
             style={styles.metricItem}
           />
         </View>
@@ -129,7 +144,15 @@ function AdminDashboardContent() {
       />
 
       {/* Contenido de Pestaña */}
-      {activeTab === "reservaciones" ? <ReservationsTab /> : <RoutesTab />}
+      {activeTab === "reservaciones" ? (
+        <ReservationsTab />
+      ) : activeTab === "rutas" ? (
+        <RoutesTab />
+      ) : activeTab === "viajes" ? (
+        <TripsTab />
+      ) : (
+        <VehiclesTab />
+      )}
     </ScrollView>
   );
 }

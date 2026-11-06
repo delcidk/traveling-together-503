@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { ScreenContainer } from '../../src/components/ui/ScreenContainer';
 import { TextField } from '../../src/components/ui/TextField';
 import { Button } from '../../src/components/ui/Button';
 import { useAuth } from '../../src/context/AuthContext';
+import { isAuthCancelledError } from '../../src/utils/authErrors';
 import { colors } from '../../src/theme/colors';
 
 const LoginSchema = z.object({
@@ -19,8 +21,9 @@ const LoginSchema = z.object({
 type LoginForm = z.infer<typeof LoginSchema>;
 
 export default function LoginScreen() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(LoginSchema),
@@ -39,6 +42,22 @@ export default function LoginScreen() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      await loginWithGoogle();
+    } catch (error: any) {
+      if (isAuthCancelledError(error)) return;
+      Toast.show({
+        type: 'error',
+        text1: 'Error con Google',
+        text2: error.message,
+      });
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -90,8 +109,24 @@ export default function LoginScreen() {
         <Button 
           title="Ingresar" 
           onPress={handleSubmit(onSubmit)} 
-          loading={loading} 
+          loading={loading}
+          disabled={googleLoading}
           style={styles.submitBtn}
+        />
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o continúa con</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <Button
+          title="Continuar con Google"
+          variant="outline"
+          icon={<Ionicons name="logo-google" size={18} color={colors.primary} />}
+          onPress={handleGoogleSignIn}
+          loading={googleLoading}
+          disabled={loading}
         />
       </View>
 
@@ -141,6 +176,22 @@ const styles = StyleSheet.create({
   },
   submitBtn: {
     marginTop: 8,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.border,
+  },
+  dividerText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: colors.textMuted,
+    marginHorizontal: 10,
   },
   footer: {
     flexDirection: 'row',

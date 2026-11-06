@@ -1,6 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import { ApiRoute } from "../types/route";
 import { getRoutes, getRouteById } from "../services/routeService";
+import { subscribeActiveRoutes } from "../services/firestore";
+import { useAuth } from "./AuthContext";
 
 interface RoutesContextType {
   routes: ApiRoute[];
@@ -13,6 +22,7 @@ interface RoutesContextType {
 const RoutesContext = createContext<RoutesContextType | undefined>(undefined);
 
 export function RoutesProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const [routes, setRoutes] = useState<ApiRoute[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,8 +42,28 @@ export function RoutesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    if (!user) {
+      fetchAll();
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const unsubscribe = subscribeActiveRoutes(
+      (liveRoutes) => {
+        setRoutes(liveRoutes);
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.warn("Firestore routes listener fallback to REST:", err.message);
+        fetchAll();
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user, fetchAll]);
 
   const getById = useCallback(
     async (id: string): Promise<ApiRoute | null> => {

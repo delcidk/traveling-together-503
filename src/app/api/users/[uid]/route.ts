@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     
     // Solo puede ver el perfil el propio usuario o un admin
     if (decodedToken.uid !== uid) {
-      await verifyAdmin(decodedToken.uid);
+      await verifyAdmin(decodedToken.uid, decodedToken.admin);
     }
 
     const doc = await adminDb.collection("users").doc(uid).get();
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     
     let isAdmin = false;
     try {
-      isAdmin = await verifyAdmin(decodedToken.uid);
+      isAdmin = await verifyAdmin(decodedToken.uid, decodedToken.admin);
     } catch {
       // no es admin
     }
@@ -78,7 +78,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updateData: any = {};
     if (parsedData.nombre !== undefined) updateData.nombre = parsedData.nombre;
     if (parsedData.telefono !== undefined) updateData.telefono = parsedData.telefono;
-    if (parsedData.rol !== undefined && isAdmin) updateData.rol = parsedData.rol;
+    if (parsedData.rol !== undefined && isAdmin) {
+      updateData.rol = parsedData.rol;
+      try {
+        const { getAuth } = await import("firebase-admin/auth");
+        await getAuth().setCustomUserClaims(uid, {
+          admin: parsedData.rol === "admin",
+        });
+      } catch (claimErr) {
+        console.warn("No se pudo sincronizar custom claim:", claimErr);
+      }
+    }
 
     await docRef.update(updateData);
 

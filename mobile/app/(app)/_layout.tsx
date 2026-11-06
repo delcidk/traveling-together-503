@@ -8,20 +8,29 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from 'expo-router/drawer';
 
 function CustomDrawerContent(props: any) {
-  const { logout, userProfile } = useAuth();
+  const { logout, user, userProfile, profileError } = useAuth();
+  const displayName = userProfile?.nombre || user?.displayName || 'Usuario';
+  const displayEmail = userProfile?.email || user?.email || '';
 
   return (
     <View style={{ flex: 1 }}>
       <DrawerContentScrollView {...props}>
-        <View style={styles.userInfo}>
+        <TouchableOpacity
+          style={styles.userInfo}
+          activeOpacity={0.7}
+          onPress={() => props.navigation.navigate('profile')}
+        >
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{userProfile?.nombre?.charAt(0).toUpperCase() || 'U'}</Text>
+            <Text style={styles.avatarText}>{displayName.charAt(0).toUpperCase()}</Text>
           </View>
-          <View>
-            <Text style={styles.userName}>{userProfile?.nombre || 'Usuario'}</Text>
-            <Text style={styles.userEmail}>{userProfile?.email}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.userName} numberOfLines={1}>{displayName}</Text>
+            <Text style={styles.userEmail} numberOfLines={1}>{displayEmail}</Text>
+            {profileError ? (
+              <Text style={styles.syncWarning}>Sincronización pendiente</Text>
+            ) : null}
           </View>
-        </View>
+        </TouchableOpacity>
         <DrawerItemList {...props} />
       </DrawerContentScrollView>
       <TouchableOpacity style={styles.logoutButton} onPress={logout}>
@@ -78,6 +87,13 @@ export default function AppLayout() {
           }}
           redirect={!isAdmin}
         />
+        <Drawer.Screen
+          name="profile"
+          options={{
+            drawerLabel: 'Mi Perfil',
+            title: 'Mi Perfil',
+          }}
+        />
       </Drawer>
     </RoutesProvider>
   );
@@ -115,6 +131,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     fontSize: 12,
     color: colors.textMuted,
+  },
+  syncWarning: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11,
+    color: colors.danger,
+    marginTop: 2,
   },
   logoutButton: {
     padding: 20,

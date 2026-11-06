@@ -4,11 +4,13 @@ import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { ScreenContainer } from '../../src/components/ui/ScreenContainer';
 import { TextField } from '../../src/components/ui/TextField';
 import { Button } from '../../src/components/ui/Button';
 import { useAuth } from '../../src/context/AuthContext';
+import { isAuthCancelledError } from '../../src/utils/authErrors';
 import { colors } from '../../src/theme/colors';
 
 const RegisterSchema = z.object({
@@ -27,8 +29,9 @@ const RegisterSchema = z.object({
 type RegisterForm = z.infer<typeof RegisterSchema>;
 
 export default function RegisterScreen() {
-  const { register: authRegister } = useAuth();
+  const { register: authRegister, loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterForm>({
     resolver: zodResolver(RegisterSchema),
@@ -39,6 +42,11 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
       await authRegister(data.email, data.password, data.nombre, data.telefono);
+      Toast.show({
+        type: 'success',
+        text1: 'Cuenta creada',
+        text2: 'Te enviamos un enlace para verificar tu correo electrónico',
+      });
     } catch (error: any) {
       Toast.show({
         type: 'error',
@@ -47,6 +55,22 @@ export default function RegisterScreen() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setGoogleLoading(true);
+      await loginWithGoogle();
+    } catch (error: any) {
+      if (isAuthCancelledError(error)) return;
+      Toast.show({
+        type: 'error',
+        text1: 'Error con Google',
+        text2: error.message,
+      });
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -78,7 +102,22 @@ export default function RegisterScreen() {
           <TextField label="Confirmar Contraseña" placeholder="••••••••" secureTextEntry onBlur={onBlur} onChangeText={onChange} value={value} error={errors.confirmPassword?.message} />
         )} />
 
-        <Button title="Registrarme" onPress={handleSubmit(onSubmit)} loading={loading} style={styles.submitBtn} />
+        <Button title="Registrarme" onPress={handleSubmit(onSubmit)} loading={loading} disabled={googleLoading} style={styles.submitBtn} />
+
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o regístrate con</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <Button
+          title="Continuar con Google"
+          variant="outline"
+          icon={<Ionicons name="logo-google" size={18} color={colors.primary} />}
+          onPress={handleGoogleSignIn}
+          loading={googleLoading}
+          disabled={loading}
+        />
       </View>
 
       <View style={styles.footer}>
@@ -97,6 +136,9 @@ const styles = StyleSheet.create({
   subtitle: { fontFamily: 'Poppins_400Regular', fontSize: 14, color: colors.textMuted, marginTop: 8, textAlign: 'center' },
   form: { backgroundColor: colors.surface, padding: 24, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   submitBtn: { marginTop: 16 },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 16 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { fontFamily: 'Poppins_400Regular', fontSize: 12, color: colors.textMuted, marginHorizontal: 10 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 32, marginBottom: 20 },
   footerText: { fontFamily: 'Poppins_400Regular', fontSize: 14, color: colors.textMuted },
   loginLink: { fontFamily: 'Poppins_600SemiBold', fontSize: 14, color: colors.primary },

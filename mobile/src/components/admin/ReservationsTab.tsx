@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
 import { useAdmin } from "../../context/AdminContext";
 import { ApiReservation, ReservationStatus } from "../../types/admin";
+import { colors } from "../../theme/colors";
 import { Chip } from "../ui/Chip";
 import { Button } from "../ui/Button";
 import { EmptyState } from "../ui/EmptyState";
@@ -31,15 +32,24 @@ export const ReservationsTab = () => {
   } = useAdmin();
 
   const [selectedStatus, setSelectedStatus] = useState("todas");
+  const [searchQuery, setSearchQuery] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [editingReservation, setEditingReservation] =
     useState<ApiReservation | null>(null);
 
   const counts = useMemo(() => countByStatus(reservations), [reservations]);
-  const filtered = useMemo(
-    () => filterByStatus(reservations, selectedStatus),
-    [reservations, selectedStatus]
-  );
+  const filtered = useMemo(() => {
+    const byStatus = filterByStatus(reservations, selectedStatus);
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return byStatus;
+    return byStatus.filter(
+      (r) =>
+        r.clienteNombre?.toLowerCase().includes(q) ||
+        r.clienteTelefono?.toLowerCase().includes(q) ||
+        r.rutaNombre?.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q)
+    );
+  }, [reservations, selectedStatus, searchQuery]);
 
   const handleStatusChange = async (id: string, status: ReservationStatus) => {
     try {
@@ -69,8 +79,19 @@ export const ReservationsTab = () => {
 
   return (
     <View style={styles.container}>
-      {/* Chips de estado + Botón Agregar */}
+      {/* Chips de estado + Buscador + Botón Agregar */}
       <View style={styles.topControls}>
+        <View style={styles.searchBox}>
+          <Ionicons name="search-outline" size={18} color={colors.textMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar por cliente, teléfono o ruta..."
+            placeholderTextColor={colors.textSubtle}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         <View style={styles.chipsWrap}>
           {STATUS_FILTERS.map((f) => (
             <Chip
@@ -147,6 +168,25 @@ const styles = StyleSheet.create({
   },
   topControls: {
     marginBottom: 16,
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: "Poppins_400Regular",
+    fontSize: 13,
+    color: colors.primary,
+    paddingVertical: 2,
   },
   chipsWrap: {
     flexDirection: "row",

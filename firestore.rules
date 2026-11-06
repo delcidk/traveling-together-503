@@ -1,0 +1,93 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Funciones auxiliares ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Verifica rol de administrador mediante Custom Claim (`admin: true`)
+    // con fallback seguro al campo `rol == 'admin'` en `users/{uid}`
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.rol == 'admin'
+        )
+      );
+    }
+
+    function isValidUserCreate(uid) {
+      let data = request.resource.data;
+      return data.uid == uid
+        && data.rol == 'cliente'
+        && data.nombre is string
+        && data.nombre.size() >= 2
+        && data.nombre.size() <= 120
+        && data.email is string;
+    }
+
+    function isValidUserSelfUpdate() {
+      let incoming = request.resource.data;
+      let current = resource.data;
+      // Impide auto-escalada de privilegios o alteración de identidad
+      return incoming.rol == current.rol
+        && incoming.uid == current.uid
+        && incoming.email == current.email
+        && incoming.createdAt == current.createdAt
+        && incoming.nombre is string
+        && incoming.nombre.size() >= 2
+        && incoming.nombre.size() <= 120;
+    }
+
+    // --- Perfiles de Usuario ---
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isAdmin() || (isOwner(uid) && isValidUserCreate(uid));
+      allow update: if isAdmin() || (isOwner(uid) && isValidUserSelfUpdate());
+      allow delete: if isAdmin();
+    }
+
+    // --- Catálogo de Rutas ---
+    match /routes/{routeId} {
+      // Rutas activas visibles para cualquier usuario autenticado (y catálogo público);
+      // rutas inactivas solo visibles/editables por administradores
+      allow read: if isAuthenticated() || resource.data.activa == true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Flota de Vehículos ---
+    match /vehicles/{vehicleId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Viajes Programados ---
+    match /trips/{tripId} {
+      allow read: if isAuthenticated();
+      // La creación/edición de viajes y el ajuste transaccional de asientosOcupados
+      // se realizan vía Admin o Backend API (firebase-admin)
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Reservaciones ---
+    match /reservations/{reservationId} {
+      // Cada cliente solo puede leer sus propias reservaciones; el admin puede leer todas
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // Las escrituras de reservas pasan por la API (transacción de cupo y cálculo de tarifa en servidor) o Admin
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- Regla por defecto: denegar todo lo no especificado ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

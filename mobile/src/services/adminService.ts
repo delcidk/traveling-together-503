@@ -1,5 +1,5 @@
 import { fetchApi, authHeaders } from "./api";
-import { ApiReservation, ApiTrip, ApiUser } from "../types/admin";
+import { ApiReservation, ApiTrip, ApiUser, ApiVehicle } from "../types/admin";
 import { ApiRoute } from "../types/route";
 
 export const adminService = {
@@ -40,9 +40,76 @@ export const adminService = {
     });
   },
 
-  // --- Viajes (lectura para selector de reserva) ---
+  // --- Viajes (CRUD completo) ---
   getTrips: async (token: string): Promise<ApiTrip[]> => {
     return fetchApi<ApiTrip[]>("/api/trips", {
+      headers: authHeaders(token),
+    });
+  },
+
+  createTrip: async (
+    token: string,
+    data: Partial<ApiTrip>
+  ): Promise<ApiTrip> => {
+    return fetchApi<ApiTrip>("/api/trips", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateTrip: async (
+    token: string,
+    id: string,
+    data: Partial<ApiTrip>
+  ): Promise<ApiTrip> => {
+    return fetchApi<ApiTrip>(`/api/trips/${id}`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteTrip: async (token: string, id: string): Promise<void> => {
+    await fetchApi(`/api/trips/${id}`, {
+      method: "DELETE",
+      headers: authHeaders(token),
+    });
+  },
+
+  // --- Vehículos (CRUD completo) ---
+  getVehicles: async (token: string): Promise<ApiVehicle[]> => {
+    return fetchApi<ApiVehicle[]>("/api/vehicles", {
+      headers: authHeaders(token),
+    });
+  },
+
+  createVehicle: async (
+    token: string,
+    data: Partial<ApiVehicle>
+  ): Promise<ApiVehicle> => {
+    return fetchApi<ApiVehicle>("/api/vehicles", {
+      method: "POST",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateVehicle: async (
+    token: string,
+    id: string,
+    data: Partial<ApiVehicle>
+  ): Promise<ApiVehicle> => {
+    return fetchApi<ApiVehicle>(`/api/vehicles/${id}`, {
+      method: "PUT",
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteVehicle: async (token: string, id: string): Promise<void> => {
+    await fetchApi(`/api/vehicles/${id}`, {
+      method: "DELETE",
       headers: authHeaders(token),
     });
   },

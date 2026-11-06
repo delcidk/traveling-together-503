@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const snapshot = await adminDb.collection("users").get();
     const users: User[] = [];
@@ -39,10 +39,18 @@ export async function POST(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
     
-    // Verifica si el usuario ya existe
+    // Verifica si el usuario ya existe (idempotente para primer login con Google o reintentos)
     const existingUser = await adminDb.collection("users").doc(decodedToken.uid).get();
     if (existingUser.exists) {
-      return errorResponse("El perfil de usuario ya existe", 400);
+      const data = existingUser.data()!;
+      return jsonResponse({
+        uid: existingUser.id,
+        email: data.email,
+        nombre: data.nombre,
+        rol: data.rol,
+        telefono: data.telefono,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+      }, 200);
     }
 
     const body = await parseBody(request);

@@ -36,7 +36,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const body = await parseBody(request);
     const parsedData = UpdateVehicleSchema.parse(body);
@@ -89,13 +89,30 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const docRef = adminDb.collection("vehicles").doc(id);
     const doc = await docRef.get();
     
     if (!doc.exists) {
       return errorResponse("Vehicle not found", 404);
+    }
+
+    const tripsSnap = await adminDb
+      .collection("trips")
+      .where("vehiculoId", "==", id)
+      .get();
+
+    const hasActiveTrips = tripsSnap.docs.some((tripDoc) => {
+      const estado = tripDoc.data().estado;
+      return estado === "programado" || estado === "en_curso";
+    });
+
+    if (hasActiveTrips) {
+      return errorResponse(
+        "No se puede eliminar un vehículo asignado a viajes programados o en curso",
+        400
+      );
     }
 
     await docRef.delete();

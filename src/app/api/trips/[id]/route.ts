@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest, { params }: TripParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const body = (await parseBody(request)) as any;
     if (typeof body.fechaSalida === 'string') {
@@ -68,13 +68,29 @@ export async function DELETE(request: NextRequest, { params }: TripParams) {
   try {
     const { id } = await params;
     const decodedToken = await verifyAuthToken(request);
-    await verifyAdmin(decodedToken.uid);
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const docRef = adminDb.collection("trips").doc(id);
     const doc = await docRef.get();
     
     if (!doc.exists) {
       return errorResponse("Trip not found", 404);
+    }
+
+    const reservationsSnap = await adminDb
+      .collection("reservations")
+      .where("viajeId", "==", id)
+      .get();
+
+    const hasActiveReservations = reservationsSnap.docs.some(
+      (resDoc) => resDoc.data().estado !== "cancelada"
+    );
+
+    if (hasActiveReservations) {
+      return errorResponse(
+        "No se puede eliminar un viaje que tiene reservaciones activas",
+        400
+      );
     }
 
     await docRef.delete();

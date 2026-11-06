@@ -37,14 +37,29 @@ export async function verifyAuthToken(request: Request) {
     if (!data.users || data.users.length === 0) throw new Error("Invalid token");
     
     const user = data.users[0];
-    return { uid: user.localId, email: user.email };
+    let customClaims: Record<string, any> = {};
+    if (user.customAttributes) {
+      try {
+        customClaims = JSON.parse(user.customAttributes);
+      } catch {
+        customClaims = {};
+      }
+    }
+    return {
+      uid: user.localId as string,
+      email: (user.email as string) || "",
+      emailVerified: Boolean(user.emailVerified),
+      displayName: (user.displayName as string) || undefined,
+      admin: Boolean(customClaims.admin),
+    };
   } catch (error) {
     throw new Error("Invalid or expired token");
   }
 }
 
-// Verifica usuario con permisos de administrador en firebase
-export async function verifyAdmin(uid: string) {
+// Verifica usuario con permisos de administrador en firebase (custom claim o rol en Firestore)
+export async function verifyAdmin(uid: string, hasAdminClaim = false) {
+  if (hasAdminClaim) return true;
   const userDoc = await adminDb.collection("users").doc(uid).get();
   
   if (!userDoc.exists) {

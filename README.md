@@ -80,6 +80,48 @@ El proyecto sigue una estructura limpia utilizando el App Router de Next.js:
 /src/app/context: Manejo de estado global (Auth, Vehicles, Trips, etc.).
 /src/app/hooks: Custom hooks (useApi, useAuthLogic) aislando la lógica de negocio.
 /src/lib: Tipados compartidos (Zod), helpers y configuración de Firebase Admin.
+/mobile: Aplicación móvil nativa en React Native + Expo SDK 57 (Expo Router, Firebase Auth con Google Sign-In nativo, sincronización en tiempo real con Firestore `onSnapshot` y panel de administración completo).
+/firestore.rules: Reglas de seguridad de Cloud Firestore basadas en `request.auth.uid` y Custom Claims (`admin: true`).
+/scripts: Scripts administrativos para sincronizar Custom Claims (`set-admin-claim.mjs`), reconciliar reservas/viajes (`reconcile-reservations.mjs`) y validar reglas de Firestore (`test-firestore-rules.mjs`).
 
-👥 Equipo de Desarrollo
+---
+
+## 📱 Aplicación Móvil (React Native / Expo — Fase 2)
+
+La carpeta [`mobile/`](./mobile) contiene la aplicación móvil para Android conectada al mismo ecosistema Firebase y API REST:
+
+### Arquitectura Híbrida (Tiempo Real + Transacciones Servidor)
+- **Autenticación Firebase (Email/Password + Google Sign-In Nativo):**
+  - Persistencia de sesión en dispositivo con `@react-native-async-storage/async-storage`.
+  - Inicio de sesión nativo con Google mediante `@react-native-google-signin/google-signin` y Expo Development Build (`eas build --profile development --platform android`).
+  - Gestión completa de perfil (`Mi Perfil`), verificación de correo, cambio de contraseña y auto-creación idempotente de documento en `users/{uid}`.
+- **Persistencia en Firestore y Reglas de Seguridad (`firestore.rules`):**
+  - Lecturas en tiempo real mediante `onSnapshot` (`mobile/src/services/firestore.ts`) para rutas, viajes programados, flota, perfil de usuario y reservaciones asociadas a `user.uid`.
+  - Escrituras críticas y control de cupos (`asientosOcupados` vs. `capacidad` del vehículo) ejecutadas mediante transacciones atómicas (`adminDb.runTransaction`) en la API REST de Next.js.
+  - Control de acceso por roles mediante **Firebase Custom Claims** (`request.auth.token.admin == true`) con respaldo en `users/{uid}.rol`.
+- **Módulos Implementados en Móvil:**
+  - **Cliente:** Catálogo de rutas con filtros, modal de reserva en salidas programadas con cupo en tiempo real, cotizador de viaje privado por WhatsApp, pantalla **Mis Reservas** con métricas, filtros por estado y cancelación de reservas pendientes, y pantalla **Mi Perfil**.
+  - **Administrador:** Panel móvil con métricas globales y CRUD completo en 4 pestañas (**Reservas**, **Rutas**, **Viajes** y **Flota / Vehículos**) con subida de imágenes a Cloudinary.
+
+### Comandos útiles (Móvil y Scripts)
+```bash
+# Instalar dependencias móviles
+cd mobile && npm install
+
+# Iniciar servidor de desarrollo (para usar con el APK de Development Build)
+cd mobile && npx expo start --dev-client
+
+# Generar APK de desarrollo en EAS (incluye módulo nativo de Google Sign-In)
+cd mobile && npx eas-cli build --profile development --platform android
+
+# Sincronizar Custom Claims de administradores en Firebase Auth
+node scripts/set-admin-claim.mjs --sync-all
+
+# Validar sintaxis e invariantes de firestore.rules
+node scripts/test-firestore-rules.mjs
+```
+
+---
+
+## 👥 Equipo de Desarrollo
 Kevin Alexander Del Cid Ponce DP191337 - Desarrollador

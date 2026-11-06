@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "330091776238",
+    "project_id": "traveling-together-503",
+    "storage_bucket": "traveling-together-503.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:330091776238:android:0d0f78726df6641253cbff",
+        "android_client_info": {
+          "package_name": "com.DelCid.travelingtogether503"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "330091776238-5icfnjtlhb3s1autg76uu1ob4e7lfqmp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.DelCid.travelingtogether503",
+            "certificate_hash": "130246f214fe9d5cfe2d3cf705886b5daa8e99ee"
+          }
+        },
+        {
+          "client_id": "330091776238-rp0doqj87gorq7h2adg2984gjj6hl4pd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.DelCid.travelingtogether503",
+            "certificate_hash": "c5a0712d0c3124097f9de757d2771834768275bd"
+          }
+        },
+        {
+          "client_id": "330091776238-fg2g17uvoo4e17uiqs57hae4fokmkisv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxI_NUOp3SOFVVWDcvZiFBtIFTMeOCAbQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "330091776238-fg2g17uvoo4e17uiqs57hae4fokmkisv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
