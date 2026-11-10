@@ -103,7 +103,7 @@ La carpeta [`mobile/`](./mobile) contiene la aplicación móvil para Android con
   - Escrituras críticas y control de cupos (`asientosOcupados` vs. `capacidad` del vehículo) ejecutadas mediante transacciones atómicas (`adminDb.runTransaction`) en la API REST de Next.js.
   - Control de acceso por roles mediante **Firebase Custom Claims** (`request.auth.token.admin == true`) con respaldo en `users/{uid}.rol`.
 - **Módulos Implementados en Móvil:**
-  - **Cliente:** Catálogo de rutas con filtros, modal de reserva en salidas programadas con cupo en tiempo real, cotizador de viaje privado por WhatsApp, pantalla **Mis Reservas** con métricas, filtros por estado y cancelación de reservas pendientes, y pantalla **Mi Perfil**.
+  - **Cliente:** Catálogo de rutas con filtros, cotizador de viaje privado por WhatsApp, pantalla **Mis Reservas** en tiempo real (`onSnapshot`) con métricas, filtros por estado y cancelación de reservas pendientes asociadas por el administrador, y pantalla **Mi Perfil**.
   - **Administrador:** Panel móvil con métricas globales y CRUD completo en 4 pestañas (**Reservas**, **Rutas**, **Viajes** y **Flota / Vehículos**) con subida de imágenes a Cloudinary.
 
 ### Comandos útiles (Móvil y Scripts)

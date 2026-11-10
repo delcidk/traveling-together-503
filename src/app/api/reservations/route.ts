@@ -80,13 +80,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const decodedToken = await verifyAuthToken(request);
-
-    let isAdmin = false;
-    try {
-      isAdmin = await verifyAdmin(decodedToken.uid, decodedToken.admin);
-    } catch {
-      // Es cliente
-    }
+    await verifyAdmin(decodedToken.uid, decodedToken.admin);
 
     const body = await parseBody(request);
     const parsedData = CreateReservationSchema.parse(body);
@@ -102,10 +96,6 @@ export async function POST(request: NextRequest) {
       }
 
       const tripData = tripDoc.data()!;
-      if (!isAdmin && tripData.estado !== "programado") {
-        throw new Error("BAD_REQUEST:Este viaje no está disponible para reservar");
-      }
-
       const routeRef = adminDb.collection("routes").doc(tripData.rutaId);
       const vehicleRef = adminDb.collection("vehicles").doc(tripData.vehiculoId);
       const [routeDoc, vehicleDoc] = await Promise.all([
@@ -118,9 +108,7 @@ export async function POST(request: NextRequest) {
         : 8;
       const ocupados = Number(tripData.asientosOcupados || 0);
 
-      const effectiveEstado = isAdmin
-        ? parsedData.estado || "pendiente"
-        : "pendiente";
+      const effectiveEstado = parsedData.estado || "pendiente";
 
       if (
         effectiveEstado !== "cancelada" &&
@@ -140,13 +128,11 @@ export async function POST(request: NextRequest) {
       );
 
       const effectivePrecioTotal =
-        isAdmin && parsedData.precioTotal !== undefined
+        parsedData.precioTotal !== undefined
           ? parsedData.precioTotal
           : calculatedPrice;
 
-      const effectiveUserId = isAdmin
-        ? parsedData.userId || decodedToken.uid
-        : decodedToken.uid;
+      const effectiveUserId = parsedData.userId?.trim() || null;
 
       const rutaNombre = routeDoc.exists
         ? `${routeDoc.data()!.origen} ➔ ${routeDoc.data()!.destino}`
