@@ -1,5 +1,5 @@
-Enlace al documento PDF de Etapa 3: https://drive.google.com/file/d/18fnegXSXV0HOCsDxldk28Cbu7OU3seea/view?usp=sharing
-Enlace al vídeo de explicación: https://www.youtube.com/watch?v=RV-qne25rxk
+Enlace al documento PDF de Etapa 3: https://drive.google.com/file/d/1KOHLDgFJIulyrLJw6d-6d-y6ccrckkes/view?usp=drive_link
+Enlace al vídeo de explicación: https://youtu.be/zgtcTXS0PQI
 
 # Traveling Together 503 - Plataforma Web
 
