@@ -195,9 +195,21 @@ export default function Home() {
       </main>
 
       <footer className="bg-gray-800 mt-auto">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-base text-gray-400">
-            &copy; 2026 Traveling Together 503. Todos los derechos reservados.
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center space-y-2">
+          <p className="text-base text-gray-400">
+            &copy; 2026 Traveling Together 503 — Kevin Alexander Del Cid Ponce (DP191337).
+          </p>
+          <p className="text-sm text-gray-400">
+            Distribuido bajo licencia{" "}
+            <a
+              href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es"
+              target="_blank"
+              rel="license noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)
+            </a>
+            .
           </p>
         </div>
       </footer>

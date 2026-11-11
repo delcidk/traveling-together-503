@@ -216,9 +216,20 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
       </main>
 
       <footer className="bg-gray-800 mt-auto">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-400">
-            &copy; 2026 Traveling Together 503. Todos los derechos reservados.
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center space-y-1">
+          <p className="text-sm text-gray-400">
+            &copy; 2026 Traveling Together 503 — Kevin Alexander Del Cid Ponce (DP191337).
+          </p>
+          <p className="text-xs text-gray-400">
+            Licencia{" "}
+            <a
+              href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es"
+              target="_blank"
+              rel="license noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline"
+            >
+              Creative Commons BY-NC-SA 4.0
+            </a>
           </p>
         </div>
       </footer>

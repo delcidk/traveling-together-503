@@ -7,6 +7,7 @@ Enlace al vídeo de explicación: https://youtu.be/zgtcTXS0PQI
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es)
 
 **Traveling Together 503** es una aplicación web responsiva desarrollada para gestionar los servicios de una agencia de transporte privado para turistas y viajeros en Centroamérica (El Salvador, Guatemala, Nicaragua). 
 
@@ -128,3 +129,16 @@ node scripts/test-firestore-rules.mjs
 
 ## 👥 Equipo de Desarrollo
 Kevin Alexander Del Cid Ponce DP191337 - Desarrollador
+
+---
+
+## 📄 Licencia
+
+Este proyecto se distribuye bajo la licencia **Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional (CC BY-NC-SA 4.0)**.
+
+- **Atribución (BY):** Debes otorgar el crédito correspondiente al autor original (**Kevin Alexander Del Cid Ponce — DP191337**), proporcionar un enlace a la licencia e indicar si se realizaron cambios.
+- **NoComercial (NC):** No puedes utilizar el material con fines comerciales.
+- **CompartirIgual (SA):** Si remezclas, transformas o creas a partir del material, debes distribuir tu contribución bajo la misma licencia que el original.
+
+Consulta el texto legal completo en el archivo [`LICENSE`](./LICENSE) o el [resumen oficial de Creative Commons](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es).
+

@@ -36,6 +36,18 @@ export const AppFooter = () => {
         <Ionicons name="logo-whatsapp" size={16} color={colors.whatsapp} />
         <Text style={styles.whatsappText}>{WHATSAPP_DISPLAY}</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.licenseRow}
+        onPress={() =>
+          Linking.openURL("https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es")
+        }
+        activeOpacity={0.7}
+      >
+        <Text style={styles.licenseText}>
+          © 2026 Kevin Del Cid · Licencia Creative Commons BY-NC-SA 4.0
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -74,5 +86,14 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_500Medium",
     fontSize: 13,
     color: colors.whatsapp,
+  },
+  licenseRow: {
+    marginTop: 16,
+  },
+  licenseText: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 11,
+    color: colors.textSubtle,
+    textDecorationLine: "underline",
   },
 });
