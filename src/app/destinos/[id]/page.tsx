@@ -72,6 +72,18 @@ export default function DestinoDetail({ params }: { params: Promise<{ id: string
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
+                  {userProfile?.rol === "admin" ? (
+                    <Link href="/admin" className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                      Panel Admin
+                    </Link>
+                  ) : (
+                    <Link href="/mis-reservas" className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                      Mis Reservas
+                    </Link>
+                  )}
+                  <Link href="/perfil" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                    Mi Perfil
+                  </Link>
                   <button onClick={() => logout()} className="text-sm font-medium text-gray-700 hover:text-red-600 border border-gray-300 px-4 py-2 rounded">
                     Cerrar Sesión
                   </button>

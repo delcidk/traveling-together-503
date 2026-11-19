@@ -118,11 +118,19 @@ export default function AdminReservationsPage() {
     }
   };
 
-  const getTripLabel = (tripId: string) => {
+  const getTripLabel = (tripId: string, fallbackRes?: any) => {
     const trip = trips.find(t => t.id === tripId);
-    if (!trip) return "Viaje desconocido";
+    if (!trip) {
+      if (fallbackRes && (fallbackRes.rutaNombre || fallbackRes.fechaSalida)) {
+        const dateLabel = fallbackRes.fechaSalida
+          ? `${new Date(fallbackRes.fechaSalida).toLocaleDateString()} - `
+          : "";
+        return `${dateLabel}${fallbackRes.rutaNombre || "Ruta programada"}`;
+      }
+      return "Viaje programado";
+    }
     const route = routes.find(r => r.id === trip.rutaId);
-    return `${new Date(trip.fechaSalida).toLocaleDateString()} - ${route ? route.origen + ' a ' + route.destino : 'Ruta'} (${trip.asientosOcupados} ocupados)`;
+    return `${new Date(trip.fechaSalida).toLocaleDateString()} - ${route ? route.origen + ' a ' + route.destino : (fallbackRes?.rutaNombre || 'Ruta')} (${trip.asientosOcupados} ocupados)`;
   };
 
   const getStatusBadge = (estado: string) => {
@@ -179,7 +187,7 @@ export default function AdminReservationsPage() {
                     reservations.map((res: any) => (
                       <tr key={res.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          <div className="font-semibold text-gray-900">{getTripLabel(res.viajeId)}</div>
+                          <div className="font-semibold text-gray-900">{getTripLabel(res.viajeId, res)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {res.clienteNombre}

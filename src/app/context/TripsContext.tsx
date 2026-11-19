@@ -27,13 +27,16 @@ export const useTripsContext = () => useContext(TripsContext);
 export const TripsProvider = ({ children }: { children: React.ReactNode }) => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loadingTrips, setLoadingTrips] = useState(true);
-  const { getToken } = useAuth();
+  const { user, getToken } = useAuth();
 
   const fetchTrips = async () => {
     try {
       setLoadingTrips(true);
       const token = await getToken();
-      if (!token) return;
+      if (!token) {
+        setTrips([]);
+        return;
+      }
       
       const res = await fetch("/api/trips", {
         headers: { Authorization: `Bearer ${token}` }
@@ -50,8 +53,13 @@ export const TripsProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchTrips();
-  }, []);
+    if (user) {
+      fetchTrips();
+    } else {
+      setTrips([]);
+      setLoadingTrips(false);
+    }
+  }, [user]);
 
   const createTrip = async (data: any) => {
     const token = await getToken();

@@ -1,38 +1,55 @@
 Enlace al documento PDF de Etapa 3: https://drive.google.com/file/d/1KOHLDgFJIulyrLJw6d-6d-y6ccrckkes/view?usp=drive_link
 Enlace al vídeo de explicación: https://youtu.be/zgtcTXS0PQI
 
-# Traveling Together 503 - Plataforma Web
+# Traveling Together 503 — Solución Multiplataforma (Web + Móvil)
 
 ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es)
 
-**Traveling Together 503** es una aplicación web responsiva desarrollada para gestionar los servicios de una agencia de transporte privado para turistas y viajeros en Centroamérica (El Salvador, Guatemala, Nicaragua). 
+**Traveling Together 503** es una solución multiplataforma (Web en **React + Next.js** y Móvil en **React Native + Expo**) desarrollada para gestionar los servicios de una agencia de transporte privado para turistas y viajeros en Centroamérica (El Salvador, Guatemala, Nicaragua).
 
-Este repositorio corresponde a la **Etapa 1 (Versión Web)** del proyecto, sentando las bases de la lógica de negocio, arquitectura y API REST que posteriormente se escalará a una aplicación móvil en React Native.
+- 🌐 **Producción Web (Vercel):** https://traveling-together-503.vercel.app/
+- 📱 **Aplicación Móvil (Android / React Native):** Directorio [`mobile/`](./mobile)
+
+---
+
+## ✅ Cumplimiento de Requerimientos — Entrega Final
+
+| # | Requerimiento | Implementación en el Repositorio |
+|---|---|---|
+| 1 | **Versión web funcional en React + Next.js desplegada en Vercel** | App Router en [`src/app/`](./src/app) + API REST en [`src/app/api/`](./src/app/api), desplegada en [traveling-together-503.vercel.app](https://traveling-together-503.vercel.app/). |
+| 2 | **Versión móvil funcional en React Native con Firebase integrado** | App nativa en [`mobile/`](./mobile) con Expo SDK 57, Expo Router, Firebase Auth (`AsyncStorage`) y Firestore (`onSnapshot`). |
+| 3 | **Autenticación completa (correo y redes sociales) en ambas plataformas** | Email/Password + **Google Sign-In** tanto en Web (`signInWithPopup` en [`useAuthLogic.ts`](./src/app/hooks/useAuthLogic.ts)) como en Móvil (`@react-native-google-signin/google-signin` en [`mobile/src/context/AuthContext.tsx`](./mobile/src/context/AuthContext.tsx)), con auto-creación idempotente de perfil en `users/{uid}`. |
+| 4 | **Módulos principales y secundarios implementados y funcionales** | **Cliente:** Catálogo con filtros por categoría y buscador, Detalle con galería y Cotizador WhatsApp, Mis Reservas con filtros/cancelación y Mi Perfil (`/perfil`). **Admin:** Dashboard de métricas y CRUD completo de Flota, Rutas, Viajes Programados y Reservaciones en Web y Móvil. |
+| 5 | **Persistencia de datos en Firestore compartida entre web y móvil** | Colecciones compartidas (`users`, `routes`, `vehicles`, `trips`, `reservations`), transacciones atómicas de cupo (`adminDb.runTransaction`) y reglas de seguridad en [`firestore.rules`](./firestore.rules). |
+| 6 | **Implementación de Licencia Creative Commons en el repositorio** | Licencia **CC BY-NC-SA 4.0** en [`LICENSE`](./LICENSE), metadatos SPDX en `package.json` y aviso legal en pies de página Web y Móvil. |
 
 ---
 
 ## Características Principales
 
 ### Módulo de Autenticación y Roles
-- Registro e inicio de sesión integrados con Firebase Auth.
-- Sistema de rutas protegidas mediante `Context API`.
+- Registro, inicio de sesión con correo/contraseña, recuperación de contraseña, verificación de correo e **inicio de sesión con Google** en Web y Móvil.
+- Sistema de rutas protegidas mediante `Context API`, middleware [`src/proxy.ts`](./src/proxy.ts) y Firebase Custom Claims (`admin: true`).
 - **Dos roles de usuario:** `Administrador` y `Cliente`, cada uno con vistas y permisos estrictamente diferenciados.
 
-### Panel de Administrador (Dashboard)
+### Panel de Administrador (Dashboard Web y Móvil)
 - **Vista Resumen:** Tarjetas de métricas en tiempo real y tabla de las últimas reservaciones.
 - **Gestión (CRUD Completo):**
-  - **Vehículos:** Control de flota, capacidades y placas.
-  - **Rutas:** Origen, destino y precios.
-  - **Viajes Programados:** Asignación de vehículos y rutas a fechas específicas, con cálculo de capacidad de pasajeros en tiempo real.
-  - **Reservaciones:** Creación de reservas manuales y asociación con usuarios registrados.
+  - **Vehículos:** Control de flota, capacidades, estado operativo y fotografías (ImgBB).
+  - **Rutas:** Origen, destino, categorías (`playa`, `internacional`, `aeropuerto`, `ciudad`, `escenico`), precios y galería.
+  - **Viajes Programados:** Asignación de vehículos y rutas a fechas específicas, con cálculo transaccional de capacidad de pasajeros.
+  - **Reservaciones:** Creación de reservas manuales, ajuste automático de asientos ocupados y asociación con usuarios registrados.
 
-### Panel de Cliente
-- **Mis Reservas:** Interfaz donde el usuario autenticado puede visualizar el estado y detalle de sus reservas activas e históricas.
-- **Cotizador Inteligente:** Landing page pública con catálogo de servicios y cotizador dinámico conectado directamente a WhatsApp.
+### Panel de Cliente (Web y Móvil)
+- **Catálogo de Rutas:** Filtro por categoría y búsqueda en tiempo real por origen o destino.
+- **Mis Reservas:** Historial con métricas, filtros por estado (`pendiente`, `confirmada`, `pagada`, `cancelada`), cancelación de reservas pendientes y soporte directo por WhatsApp.
+- **Mi Perfil:** Edición de nombre y teléfono, verificación de correo electrónico y cambio de contraseña con reautenticación.
+- **Cotizador Inteligente:** Cotizador dinámico conectado directamente a WhatsApp.
 
 ---
 
@@ -68,6 +85,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu_storage
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=tu_app_id
+NEXT_PUBLIC_IMGBB_API_KEY=tu_imgbb_api_key
 
 FIREBASE_PROJECT_ID=tu_project_id
 FIREBASE_CLIENT_EMAIL=tu_client_email
@@ -105,7 +123,7 @@ La carpeta [`mobile/`](./mobile) contiene la aplicación móvil para Android con
   - Control de acceso por roles mediante **Firebase Custom Claims** (`request.auth.token.admin == true`) con respaldo en `users/{uid}.rol`.
 - **Módulos Implementados en Móvil:**
   - **Cliente:** Catálogo de rutas con filtros, cotizador de viaje privado por WhatsApp, pantalla **Mis Reservas** en tiempo real (`onSnapshot`) con métricas, filtros por estado y cancelación de reservas pendientes asociadas por el administrador, y pantalla **Mi Perfil**.
-  - **Administrador:** Panel móvil con métricas globales y CRUD completo en 4 pestañas (**Reservas**, **Rutas**, **Viajes** y **Flota / Vehículos**) con subida de imágenes a Cloudinary.
+  - **Administrador:** Panel móvil con métricas globales y CRUD completo en 4 pestañas (**Reservas**, **Rutas**, **Viajes** y **Flota / Vehículos**) con subida de imágenes a ImgBB.
 
 ### Comandos útiles (Móvil y Scripts)
 ```bash

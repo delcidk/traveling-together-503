@@ -77,11 +77,17 @@ export default function AdminPage() {
     return [...reservations].slice(0, 5); // Ya están ordenadas por createdAt desc desde el backend
   }, [reservations]);
 
-  const getTripLabel = (tripId: string) => {
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) return "Viaje desconocido";
-    const route = routes.find(r => r.id === trip.rutaId);
-    return `${new Date(trip.fechaSalida).toLocaleDateString()} - ${route ? route.origen + ' a ' + route.destino : 'Ruta'}`;
+  const getTripLabel = (res: any) => {
+    const trip = trips.find(t => t.id === res.viajeId);
+    if (trip) {
+      const route = routes.find(r => r.id === trip.rutaId);
+      return `${new Date(trip.fechaSalida).toLocaleDateString()} - ${route ? route.origen + ' a ' + route.destino : (res.rutaNombre || 'Ruta')}`;
+    }
+    if (res.rutaNombre || res.fechaSalida) {
+      const dateLabel = res.fechaSalida ? `${new Date(res.fechaSalida).toLocaleDateString()} - ` : "";
+      return `${dateLabel}${res.rutaNombre || "Ruta programada"}`;
+    }
+    return "Viaje programado";
   };
 
   // Computar métricas utilizando useMemo para optimización
@@ -176,7 +182,7 @@ export default function AdminPage() {
                           <div className="text-xs text-gray-500">{res.clienteTelefono || "Sin teléfono"}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{getTripLabel(res.viajeId)}</div>
+                          <div className="text-sm text-gray-900">{getTripLabel(res)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 

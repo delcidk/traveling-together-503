@@ -10,19 +10,23 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, userProfile, loading } = useAuth();
+  const { user, userProfile, isAdmin, loading } = useAuth();
   const router = useRouter();
+
+  const hasRequiredRole =
+    !requiredRole ||
+    (requiredRole === "admin" ? isAdmin : !isAdmin || userProfile?.rol === "cliente");
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         router.push("/login");
-      } else if (requiredRole && userProfile && userProfile.rol !== requiredRole) {
+      } else if (!hasRequiredRole) {
         // Redirigir si no tiene el rol necesario
-        router.push("/");
+        router.push(isAdmin ? "/admin" : "/");
       }
     }
-  }, [user, userProfile, loading, requiredRole, router]);
+  }, [user, hasRequiredRole, isAdmin, loading, router]);
 
   if (loading) {
     return (
@@ -35,7 +39,7 @@ export default function ProtectedRoute({ children, requiredRole }: ProtectedRout
 
   // Si no hay usuario, o falta el rol, no renderizamos los children
   // (el useEffect ya disparó la redirección, pero evitamos flashes de contenido).
-  if (!user || (requiredRole && userProfile?.rol !== requiredRole)) {
+  if (!user || !hasRequiredRole) {
     return null;
   }
 

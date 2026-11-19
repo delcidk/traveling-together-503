@@ -11,10 +11,18 @@ interface AuthContextType {
   loading: boolean;
   getToken: () => Promise<string | null>;
   login: (email: string, pass: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (email: string, pass: string, nombre: string, telefono?: string) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  updateUserProfile: (data: { nombre: string; telefono?: string }) => Promise<void>;
+  changePassword: (currentPass: string, newPass: string) => Promise<void>;
+  sendVerificationEmail: () => Promise<void>;
+  refreshUser: () => Promise<boolean>;
   isAdmin: boolean;
+  emailVerified: boolean;
+  isPasswordProvider: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);

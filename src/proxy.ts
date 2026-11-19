@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Rutas que requieren autenticación
-const protectedPaths = ["/dashboard", "/admin", "/reservations", "/profile"];
+const protectedPaths = ["/admin", "/mis-reservas", "/perfil"];
 // Rutas que solo deben verse si NO está logueado
-const authPaths = ["/login", "/register"];
+const authPaths = ["/login", "/register", "/forgot-password"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -17,6 +17,7 @@ const RouteFormSchema = z.object({
   destino: z.string().min(1, "El destino es obligatorio"),
   distanciaKm: z.number().positive("La distancia debe ser mayor a 0"),
   tarifaBase: z.number().nonnegative("La tarifa no puede ser negativa"),
+  categoria: z.enum(["playa", "internacional", "aeropuerto", "ciudad", "escenico"]).optional().or(z.literal("")),
   descripcion: z.string().optional(),
   imagenUrl: z.string().url("Debe ser una URL válida").optional().or(z.literal("")),
   galeria: z.array(z.string()).optional(),
@@ -30,6 +31,7 @@ const INITIAL_FORM_DATA: RouteFormValues = {
   destino: "",
   distanciaKm: 1,
   tarifaBase: 0,
+  categoria: "playa",
   descripcion: "",
   imagenUrl: "",
   galeria: [],
@@ -67,6 +69,7 @@ export default function RoutesPage() {
       destino: route.destino,
       distanciaKm: route.distanciaKm,
       tarifaBase: route.tarifaBase,
+      categoria: route.categoria || "playa",
       descripcion: route.descripcion || "",
       imagenUrl: route.imagenUrl || "",
       galeria: route.galeria || [],
@@ -82,11 +85,15 @@ export default function RoutesPage() {
 
   const onSubmit = async (data: RouteFormValues) => {
     try {
+      const payload: Partial<Route> = {
+        ...data,
+        categoria: (data.categoria || undefined) as Route["categoria"],
+      };
       if (editingId) {
-        await updateRoute(editingId, data);
+        await updateRoute(editingId, payload);
         toast.success("Ruta actualizada correctamente");
       } else {
-        await createRoute(data);
+        await createRoute(payload);
         toast.success("Ruta creada correctamente");
       }
       handleCloseModal();
@@ -229,6 +236,16 @@ export default function RoutesPage() {
                       <input type="number" step="0.1" min="0.1" placeholder="Ej. 40.5" {...register("distanciaKm", { valueAsNumber: true })} className={inputClass(errors.distanciaKm)} />
                     </FormField>
                   </div>
+
+                  <FormField label="Categoría de Ruta" error={errors.categoria?.message}>
+                    <select {...register("categoria")} className={inputClass(errors.categoria)}>
+                      <option value="playa">Playa</option>
+                      <option value="internacional">Internacional</option>
+                      <option value="aeropuerto">Aeropuerto</option>
+                      <option value="ciudad">Ciudad</option>
+                      <option value="escenico">Escénico</option>
+                    </select>
+                  </FormField>
 
                   <FormField label="Descripción / Recomendaciones" error={errors.descripcion?.message}>
                     <textarea 

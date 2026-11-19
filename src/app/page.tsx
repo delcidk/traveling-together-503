@@ -1,12 +1,40 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./context/AuthContext";
 import { useRoutesContext } from "./context/RoutesContext";
 
+const CATEGORY_OPTIONS: { key: string; label: string }[] = [
+  { key: "todos", label: "Todos" },
+  { key: "playa", label: "Playa" },
+  { key: "internacional", label: "Internacional" },
+  { key: "aeropuerto", label: "Aeropuerto" },
+  { key: "ciudad", label: "Ciudad" },
+  { key: "escenico", label: "Escénico" },
+];
+
 export default function Home() {
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, isAdmin, logout } = useAuth();
   const { routes, loadingRoutes } = useRoutesContext();
+  const [selectedCategory, setSelectedCategory] = useState("todos");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredRoutes = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    return routes
+      .filter((r) => r.activa)
+      .filter((r) =>
+        selectedCategory === "todos" ? true : r.categoria === selectedCategory
+      )
+      .filter((r) =>
+        !query
+          ? true
+          : r.origen.toLowerCase().includes(query) ||
+            r.destino.toLowerCase().includes(query) ||
+            (r.descripcion || "").toLowerCase().includes(query)
+      );
+  }, [routes, selectedCategory, searchTerm]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -33,7 +61,7 @@ export default function Home() {
                   <span className="text-sm text-gray-700 hidden sm:block">
                     Hola, {userProfile?.nombre || "Usuario"}
                   </span>
-                  {userProfile?.rol === "admin" ? (
+                  {isAdmin ? (
                     <Link href="/admin" className="text-sm font-medium text-blue-600 hover:text-blue-800">
                       Panel Admin
                     </Link>
@@ -42,6 +70,9 @@ export default function Home() {
                       Mis Reservas
                     </Link>
                   )}
+                  <Link href="/perfil" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                    Mi Perfil
+                  </Link>
                   <button
                     onClick={() => logout()}
                     className="text-sm font-medium text-gray-700 hover:text-red-600 border border-gray-300 px-4 py-1.5 rounded"
@@ -136,9 +167,40 @@ export default function Home() {
 
         {/* SECCION DE LA CUADRICULA DE RUTAS */}
         <div id="tours" className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 border-t border-gray-100">
-          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">
-            Nuestros Destinos Destacados
+          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">
+            Nuestros Destinos y Rutas
           </h2>
+
+          {/* Buscador y Filtros por Categoría */}
+          <div className="max-w-3xl mx-auto mb-10 space-y-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar por ciudad de origen o destino..."
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+            <div className="flex flex-wrap justify-center gap-2">
+              {CATEGORY_OPTIONS.map((cat) => {
+                const active = selectedCategory === cat.key;
+                return (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.key)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                      active
+                        ? "bg-gray-900 text-white border-gray-900"
+                        : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {loadingRoutes ? (
 
@@ -152,9 +214,9 @@ export default function Home() {
                   </div>
                 </div>
               ))
-            ) : routes.filter(r => r.activa).length > 0 ? (
+            ) : filteredRoutes.length > 0 ? (
 
-              routes.filter(r => r.activa).slice(0, 6).map((route: any) => (
+              filteredRoutes.map((route: any) => (
                 <div key={route.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 flex flex-col">
                   {route.imagenUrl ? (
                     <img src={route.imagenUrl} alt={route.destino} className="h-48 w-full object-cover" />
@@ -164,6 +226,11 @@ export default function Home() {
                     </div>
                   )}
                   <div className="p-6 flex flex-col flex-1">
+                    {route.categoria && (
+                      <span className="self-start mb-2 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide rounded bg-gray-100 text-gray-700">
+                        {CATEGORY_OPTIONS.find((c) => c.key === route.categoria)?.label || route.categoria}
+                      </span>
+                    )}
                     <h3 className="text-lg font-bold text-gray-900 mb-1">
                       {route.origen} a {route.destino}
                     </h3>

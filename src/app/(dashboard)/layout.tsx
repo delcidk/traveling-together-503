@@ -58,10 +58,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                   </nav>
                 </div>
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-700 mr-4">
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-700">
                     Hola, {userProfile?.nombre}
                   </span>
+                  <Link
+                    href="/perfil"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                  >
+                    Mi Perfil
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="text-sm text-red-600 hover:text-red-800"
