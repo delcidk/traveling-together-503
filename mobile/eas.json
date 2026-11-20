@@ -8,7 +8,15 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAUxDaENrbqzbR__ExYxrH9x-oj9Svtaak",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "traveling-together-503.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "traveling-together-503",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "traveling-together-503.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "330091776238",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:330091776238:web:9e2b9f62d0b6c20e53cbff",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "330091776238-fg2g17uvoo4e17uiqs57hae4fokmkisv.apps.googleusercontent.com",
+        "EXPO_PUBLIC_IMGBB_API_KEY": "5a40b1647906a2b8e673d6c67e65b9dd"
       },
       "android": {
         "buildType": "apk"
@@ -17,7 +25,15 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAUxDaENrbqzbR__ExYxrH9x-oj9Svtaak",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "traveling-together-503.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "traveling-together-503",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "traveling-together-503.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "330091776238",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:330091776238:web:9e2b9f62d0b6c20e53cbff",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "330091776238-fg2g17uvoo4e17uiqs57hae4fokmkisv.apps.googleusercontent.com",
+        "EXPO_PUBLIC_IMGBB_API_KEY": "5a40b1647906a2b8e673d6c67e65b9dd"
       },
       "android": {
         "buildType": "apk"
@@ -26,7 +42,15 @@
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app"
+        "EXPO_PUBLIC_API_URL": "https://traveling-together-503.vercel.app",
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyAUxDaENrbqzbR__ExYxrH9x-oj9Svtaak",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "traveling-together-503.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "traveling-together-503",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "traveling-together-503.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "330091776238",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:330091776238:web:9e2b9f62d0b6c20e53cbff",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "330091776238-fg2g17uvoo4e17uiqs57hae4fokmkisv.apps.googleusercontent.com",
+        "EXPO_PUBLIC_IMGBB_API_KEY": "5a40b1647906a2b8e673d6c67e65b9dd"
       }
     }
   },
